@@ -1,0 +1,2 @@
+# # Pedantic always use the latest version of the lints, with best practices from Google
+# include: package:pedantic/analysis_options.yaml
