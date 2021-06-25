@@ -1,10 +1,6 @@
 # another_xlider
 
-> Now supports null safety.
-
 (Flutter Slider) A material design slider and range slider, horizontal and vertical, with rtl support and lots of options and customizations for flutter
-
-!! **Since version 3.4.0-dev.3, step type is no longer `double`, its `FlutterSliderStep`** !!
 
 ## Get Started
 
@@ -684,3 +680,6 @@ FlutterSlider(
 )
 ```
 ![](images/wwd.png)
+
+## Credits 
+based on https://pub.dev/packages/flutter_xlider
