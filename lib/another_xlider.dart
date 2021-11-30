@@ -2616,7 +2616,7 @@ class FlutterSliderHatchMark {
   FlutterSliderHatchMark(
       {this.disabled = false,
       this.density = 1,
-      this.smallDensity = 5,
+      this.smallDensity = 4,
       this.linesDistanceFromTrackBar,
       this.labelsDistanceFromTrackBar,
       this.labels,
