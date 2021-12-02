@@ -1,17 +1,7 @@
 /// A material design slider and range slider with horizontal and vertical axis, rtl support and lots of options and customizations for flutter
-
-/*
-* *
-* * Written by Ali Azmoude <ali.azmoude@gmail.com>
-* *
-* *
-* *
-* * When I wrote this, only God and I understood what I was doing.
-* * Now, God only knows "Karl Weierstrass"
-* */
+import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'dart:math';
 
 class FlutterSlider extends StatefulWidget {
   final Key? key;
@@ -272,8 +262,7 @@ class _FlutterSliderState extends State<FlutterSlider>
               layoutWidth = 0;
             }
             __containerSizeWithoutPadding = _containerHeightWithoutPadding;
-            _containerWidth =
-                [(sliderProperSize! * 2), layoutWidth].reduce(min);
+            _containerWidth = [sliderProperSize!, layoutWidth].reduce(max);
             _containerHeight = constraints.maxHeight;
           } else {
             double layoutHeight = constraints.maxHeight;
@@ -281,8 +270,7 @@ class _FlutterSliderState extends State<FlutterSlider>
               layoutHeight = 0;
             }
             _containerWidth = constraints.maxWidth;
-            _containerHeight =
-                [(sliderProperSize! * 2), layoutHeight].reduce(min);
+            _containerHeight = [sliderProperSize!, layoutHeight].reduce(max);
             __containerSizeWithoutPadding = _containerWidthWithoutPadding;
           }
 
