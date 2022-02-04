@@ -503,14 +503,15 @@ use `FlutterSliderHatchMark` class which has following properties:
 2. `bigLine`: The widget of big lines in hatch mark
 3. `smallLine`: The widget of small lines in hatch mark
 4. `linesAlignment`: the direct of lines, `right` or `left` which works as `top` or `bottom` on horizontal slider
-5. `density`: The amount of lines per percent. 1 is default. any number less or more than 1 will decrease and increase lines respectively
-6. `displayLines`: to display lines. by default is `false` for the sake of optimization
+5. `density`: The number of lines per percent. 1 is default. any number less or more than 1 will decrease and increase lines respectively
+6. `smallDensity`: The number of small lines between any two big lines. 4 is default. any number less or more than 4 will decrease and increase lines respectively.
+7. `displayLines`: to display lines. by default is `false` for the sake of optimization
 
-7. `labels`: If you want to display some label or text at certain percent in your hatch mark, you can use `labels`
-8. `labelBox`: The widget of label box, however, you can define a widget for each label and have it's own style
-9. `labelsDistanceFromTrackBar`: The distance of labels from slider. can be negative
+8. `labels`: If you want to display some label or text at certain percent in your hatch mark, you can use `labels`
+9. `labelBox`: The widget of label box, however, you can define a widget for each label and have it's own style
+10. `labelsDistanceFromTrackBar`: The distance of labels from slider. can be negative
 
-10. `disabled`: to disabled the whole hatchmark ( hide )
+11. `disabled`: to disabled the whole hatchmark ( hide )
 
 **labels alignment is center**
 
