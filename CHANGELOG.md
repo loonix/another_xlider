@@ -1,4 +1,4 @@
-## [1.0.1] - 14/02/2022
+## [1.0.1+2] - 14/02/2022
 
 Big thanks to @felixgabler for finding and fixing the following bugs:
 
