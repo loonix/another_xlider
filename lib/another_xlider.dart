@@ -466,6 +466,7 @@ class _FlutterSliderState extends State<FlutterSlider>
     FlutterSliderHatchMark hatchMark = FlutterSliderHatchMark();
     hatchMark.disabled = widget.hatchMark!.disabled;
     hatchMark.density = widget.hatchMark!.density;
+    hatchMark.smallDensity = widget.hatchMark!.smallDensity;
     hatchMark.linesDistanceFromTrackBar =
         widget.hatchMark!.linesDistanceFromTrackBar ?? 0;
     hatchMark.labelsDistanceFromTrackBar =
@@ -518,7 +519,7 @@ class _FlutterSliderState extends State<FlutterSlider>
       for (int p = 0; p <= percent; p++) {
         FlutterSliderSizedBox? barLineBox = hatchMark.smallLine;
 
-        if (p % 5 - 1 == -1) {
+        if (p % (hatchMark.smallDensity + 1) == 0) {
           barLineBox = hatchMark.bigLine;
         }
 
@@ -2606,6 +2607,8 @@ class FlutterSliderHatchMark {
   List<FlutterSliderHatchMarkLabel>? labels;
   FlutterSliderSizedBox? smallLine;
   FlutterSliderSizedBox? bigLine;
+  /// How many small lines to display between two big lines
+  int smallDensity;
   FlutterSliderSizedBox? labelBox;
   FlutterSliderHatchMarkAlignment linesAlignment;
   bool? displayLines;
@@ -2613,6 +2616,7 @@ class FlutterSliderHatchMark {
   FlutterSliderHatchMark(
       {this.disabled = false,
       this.density = 1,
+      this.smallDensity = 4,
       this.linesDistanceFromTrackBar,
       this.labelsDistanceFromTrackBar,
       this.labels,
@@ -2621,7 +2625,8 @@ class FlutterSliderHatchMark {
       this.linesAlignment = FlutterSliderHatchMarkAlignment.right,
       this.labelBox,
       this.displayLines})
-      : assert(density > 0 && density <= 2);
+      : assert(density > 0 && density <= 2),
+        assert(smallDensity >= 0);
 
   @override
   String toString() {
