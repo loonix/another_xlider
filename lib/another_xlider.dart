@@ -1742,6 +1742,7 @@ class _FlutterSliderState extends State<FlutterSlider>
           opacity: 0,
           child: Listener(
             onPointerUp: (_) {
+              __dragging = false;
               if (widget.selectByTap && !__dragging) {
                 tappedPositionWithPadding = _distance();
                 if (_distanceFromLeftHandler! < _distanceFromRightHandler!) {
@@ -1770,9 +1771,6 @@ class _FlutterSliderState extends State<FlutterSlider>
                 }
               }
 
-//              _adjustLeftHandlerPosition();
-//              _adjustRightHandlerPosition();
-
               _hideTooltips();
 
               _stopHandlerAnimation(
@@ -1781,8 +1779,6 @@ class _FlutterSliderState extends State<FlutterSlider>
               _stopHandlerAnimation(
                   animation: _rightHandlerScaleAnimation,
                   controller: _rightHandlerScaleAnimationController);
-
-              __dragging = false;
 
               setState(() {});
             },
