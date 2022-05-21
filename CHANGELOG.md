@@ -1,3 +1,13 @@
+## 1.1.0 - 21/05/2022 (Flutter 3 upgrade)
+
+### What's Changed
+* feat: flutter 3 support by @erknvl in https://github.com/loonix/another_xlider/pull/10
+
+### New Contributors
+* @erknvl made their first contribution in https://github.com/loonix/another_xlider/pull/10
+
+**Full Changelog**: https://github.com/loonix/another_xlider/compare/1.0.1...1.1.0
+
 ## [1.0.1+2] - 14/02/2022
 
 Big thanks to @felixgabler for finding and fixing the following bugs:
@@ -9,3 +19,4 @@ Big thanks to @felixgabler for finding and fixing the following bugs:
 ## [1.0.0] - 24/06/2021
 
 * Null safety upgrade
+  1
