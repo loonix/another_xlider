@@ -2256,7 +2256,7 @@ class FlutterSliderState extends State<FlutterSlider>
     BoxDecoration boxDecoration =
         widget.trackBar.inactiveRightTrackBar ?? const BoxDecoration();
 
-    Color trackBarColor = boxDecoration.color ?? const Color(0xff2196F3);
+    Color trackBarColor = boxDecoration.color ?? const Color(0x00000000);
     if (widget.disabled) {
       trackBarColor = widget.trackBar.inactiveDisabledTrackBarColor;
     }
