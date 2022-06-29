@@ -438,7 +438,7 @@ class FlutterSliderState extends State<FlutterSlider>
                 parent: _rightTooltipAnimationController,
                 curve: Curves.fastOutSlowIn));
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) {
         return;
       }
