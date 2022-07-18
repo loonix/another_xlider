@@ -1,3 +1,5 @@
+## 1.1.2 - 18/07/2022
+Fixes the issue with flutter 3.X widget binding '?'
 ## 1.1.1 - 29/06/2022
 Bugfix to WidgetsBinding -> https://github.com/loonix/another_xlider/issues/12 flagged by @greyovo
 ## 1.1.0 - 21/05/2022 (Flutter 3 upgrade)

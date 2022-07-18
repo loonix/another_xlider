@@ -2,6 +2,11 @@
 
 (Flutter Slider) A material design slider and range slider, horizontal and vertical, with rtl support and lots of options and customizations for flutter
 
+
+## IMPORTANT: Breaking Changes!
+- Flutter Version 2.x - Take any version up to 1.1.1
+- Flutter Version 3.x - Take any version from 1.1.2
+
 ## Get Started
 
 ### Single Slider
