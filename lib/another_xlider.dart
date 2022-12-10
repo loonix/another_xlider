@@ -390,9 +390,7 @@ class FlutterSliderState extends State<FlutterSlider>
     }
 
     Offset animationStart = const Offset(0, 0);
-    if (widget.tooltip != null &&
-        widget.tooltip!.disableAnimation != null &&
-        widget.tooltip!.disableAnimation!) {
+    if (widget.tooltip?.disableAnimation == true) {
       animationStart = const Offset(0, -1);
     }
 
@@ -421,7 +419,7 @@ class FlutterSliderState extends State<FlutterSlider>
       _rightTooltipAnimationController = AnimationController(
           duration: const Duration(milliseconds: 200), vsync: this);
     } else {
-      if (_tooltipData.alwaysShowTooltip!) {
+      if (_tooltipData.alwaysShowTooltip) {
         _rightTooltipOpacity = _leftTooltipOpacity = 1;
       }
     }
@@ -775,11 +773,10 @@ class FlutterSliderState extends State<FlutterSlider>
     _tooltipData.leftSuffix = widgetTooltip.leftSuffix;
     _tooltipData.rightPrefix = widgetTooltip.rightPrefix;
     _tooltipData.rightSuffix = widgetTooltip.rightSuffix;
-    _tooltipData.alwaysShowTooltip = widgetTooltip.alwaysShowTooltip ?? false;
-    _tooltipData.disabled = widgetTooltip.disabled ?? false;
-    _tooltipData.disableAnimation = widgetTooltip.disableAnimation ?? false;
-    _tooltipData.direction =
-        widgetTooltip.direction ?? FlutterSliderTooltipDirection.top;
+    _tooltipData.alwaysShowTooltip = widgetTooltip.alwaysShowTooltip;
+    _tooltipData.disabled = widgetTooltip.disabled;
+    _tooltipData.disableAnimation = widgetTooltip.disableAnimation;
+    _tooltipData.direction = widgetTooltip.direction;
     _tooltipData.positionOffset = widgetTooltip.positionOffset;
     _tooltipData.format = widgetTooltip.format;
     _tooltipData.custom = widgetTooltip.custom;
@@ -1522,7 +1519,7 @@ class FlutterSliderState extends State<FlutterSlider>
           xDragTmp = (_.position.dx - _containerLeft - _leftHandlerXPosition!);
           yDragTmp = (_.position.dy - _containerTop - _leftHandlerYPosition!);
 
-          if (!_tooltipData.disabled! &&
+          if (!_tooltipData.disabled &&
               _tooltipData.alwaysShowTooltip == false) {
             _leftTooltipOpacity = 1;
             _leftTooltipAnimationController.forward();
@@ -1591,7 +1588,7 @@ class FlutterSliderState extends State<FlutterSlider>
   }
 
   void _hideTooltips() {
-    if (!_tooltipData.alwaysShowTooltip!) {
+    if (!_tooltipData.alwaysShowTooltip) {
       _leftTooltipOpacity = 0;
       _rightTooltipOpacity = 0;
       _leftTooltipAnimationController.reset();
@@ -1633,7 +1630,7 @@ class FlutterSliderState extends State<FlutterSlider>
         onPointerMove: (_) {
           __dragging = true;
 
-          if (!_tooltipData.disabled! &&
+          if (!_tooltipData.disabled &&
               _tooltipData.alwaysShowTooltip == false) {
             _rightTooltipOpacity = 1;
           }
@@ -1650,7 +1647,7 @@ class FlutterSliderState extends State<FlutterSlider>
           xDragTmp = (_.position.dx - _containerLeft - _rightHandlerXPosition!);
           yDragTmp = (_.position.dy - _containerTop - _rightHandlerYPosition!);
 
-          if (!_tooltipData.disabled! &&
+          if (!_tooltipData.disabled &&
               _tooltipData.alwaysShowTooltip == false) {
             _rightTooltipOpacity = 1;
             _rightTooltipAnimationController.forward();
@@ -1815,7 +1812,7 @@ class FlutterSliderState extends State<FlutterSlider>
                 if (widget.rangeSlider) {
                   if (_leftTapAndSlide) {
                     _trackBarSlideCallDragStated(0);
-                    if (!_tooltipData.disabled! &&
+                    if (!_tooltipData.disabled &&
                         _tooltipData.alwaysShowTooltip == false) {
                       _leftTooltipOpacity = 1;
                       _leftTooltipAnimationController.forward();
@@ -1824,7 +1821,7 @@ class FlutterSliderState extends State<FlutterSlider>
                         tappedPositionWithPadding: tappedPositionWithPadding);
                   } else {
                     _trackBarSlideCallDragStated(1);
-                    if (!_tooltipData.disabled! &&
+                    if (!_tooltipData.disabled &&
                         _tooltipData.alwaysShowTooltip == false) {
                       _rightTooltipOpacity = 1;
                       _rightTooltipAnimationController.forward();
@@ -1834,7 +1831,7 @@ class FlutterSliderState extends State<FlutterSlider>
                   }
                 } else {
                   _trackBarSlideCallDragStated(1);
-                  if (!_tooltipData.disabled! &&
+                  if (!_tooltipData.disabled &&
                       _tooltipData.alwaysShowTooltip == false) {
                     _rightTooltipOpacity = 1;
                     _rightTooltipAnimationController.forward();
@@ -1927,7 +1924,7 @@ class FlutterSliderState extends State<FlutterSlider>
 
               if (_ignoreSteps.isEmpty) {
                 if ((widget.lockHandlers || __lockedHandlersDragOffset > 0) &&
-                    !_tooltipData.disabled! &&
+                    !_tooltipData.disabled &&
                     _tooltipData.alwaysShowTooltip == false) {
                   _leftTooltipOpacity = 1;
                   _leftTooltipAnimationController.forward();
@@ -1981,7 +1978,7 @@ class FlutterSliderState extends State<FlutterSlider>
 
   Positioned _tooltip(
       {String? side, dynamic value, double? opacity, Animation? animation}) {
-    if (_tooltipData.disabled! || value == '') {
+    if (_tooltipData.disabled || value == '') {
       return Positioned(
         child: Container(),
       );
@@ -2443,10 +2440,10 @@ class FlutterSliderTooltip {
   Widget? leftSuffix;
   Widget? rightPrefix;
   Widget? rightSuffix;
-  bool? alwaysShowTooltip;
-  bool? disabled;
-  bool? disableAnimation;
-  FlutterSliderTooltipDirection? direction;
+  bool alwaysShowTooltip;
+  bool disabled;
+  bool disableAnimation;
+  FlutterSliderTooltipDirection direction;
   FlutterSliderTooltipPositionOffset? positionOffset;
 
   FlutterSliderTooltip({
@@ -2458,10 +2455,10 @@ class FlutterSliderTooltip {
     this.leftSuffix,
     this.rightPrefix,
     this.rightSuffix,
-    this.alwaysShowTooltip,
-    this.disableAnimation,
-    this.disabled,
-    this.direction,
+    this.alwaysShowTooltip = false,
+    this.disableAnimation = false,
+    this.disabled = false,
+    this.direction = FlutterSliderTooltipDirection.top,
     this.positionOffset,
   });
 
