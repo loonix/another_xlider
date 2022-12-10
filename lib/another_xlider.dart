@@ -2025,25 +2025,24 @@ class FlutterSliderState extends State<FlutterSlider>
     }
 
     Widget tooltipWidget = IgnorePointer(
-        child: Center(
-      child: FittedBox(
-        child: Container(
-//            height: ,
-//          height: __tooltipKEY.currentContext.size.height,
-          key: (side == 'left') ? leftTooltipKey : rightTooltipKey,
-//            alignment: Alignment.center,
-          child: (widget.tooltip != null && widget.tooltip!.custom != null)
-              ? widget.tooltip!.custom!(value)
-              : Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: _tooltipData.boxStyle!.decoration,
-                  foregroundDecoration:
-                      _tooltipData.boxStyle!.foregroundDecoration,
-                  transform: _tooltipData.boxStyle!.transform,
-                  child: tooltipHolderWidget),
+      child: Center(
+        child: FittedBox(
+          child: Container(
+            key: (side == 'left') ? leftTooltipKey : rightTooltipKey,
+            child: (widget.tooltip != null && widget.tooltip!.custom != null)
+                ? widget.tooltip!.custom!(value)
+                : Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: _tooltipData.boxStyle!.decoration,
+                    foregroundDecoration:
+                        _tooltipData.boxStyle!.foregroundDecoration,
+                    transform: _tooltipData.boxStyle!.transform,
+                    child: tooltipHolderWidget,
+                  ),
+          ),
         ),
       ),
-    ));
+    );
 
     double? top, right, bottom, left;
     switch (_tooltipData.direction) {
