@@ -1498,6 +1498,7 @@ class FlutterSliderState extends State<FlutterSlider>
           feedback: Container(),
           child: Stack(
             clipBehavior: Clip.none,
+            alignment: Alignment.center,
             children: [
               _tooltip(
                   side: 'left',
@@ -1620,6 +1621,7 @@ class FlutterSliderState extends State<FlutterSlider>
           feedback: Container(),
           child: Stack(
             clipBehavior: Clip.none,
+            alignment: Alignment.center,
             children: ([
               _tooltip(
                   side: 'right',
@@ -2049,18 +2051,12 @@ class FlutterSliderState extends State<FlutterSlider>
     switch (_tooltipData.direction) {
       case FlutterSliderTooltipDirection.top:
         top = 0;
-        left = 0;
-        right = 0;
         break;
       case FlutterSliderTooltipDirection.left:
         left = 0;
-        top = 0;
-        bottom = 0;
         break;
       case FlutterSliderTooltipDirection.right:
         right = 0;
-        top = 0;
-        bottom = 0;
         break;
       default:
         break;
@@ -2068,16 +2064,16 @@ class FlutterSliderState extends State<FlutterSlider>
 
     if (_tooltipData.positionOffset != null) {
       if (_tooltipData.positionOffset!.top != null) {
-        top = top! + _tooltipData.positionOffset!.top!;
+        top = (top ?? 0) + _tooltipData.positionOffset!.top!;
       }
       if (_tooltipData.positionOffset!.left != null) {
-        left = left! + _tooltipData.positionOffset!.left!;
+        left = (left ?? 0) + _tooltipData.positionOffset!.left!;
       }
       if (_tooltipData.positionOffset!.right != null) {
-        right = right! + _tooltipData.positionOffset!.right!;
+        right = (right ?? 0) + _tooltipData.positionOffset!.right!;
       }
       if (_tooltipData.positionOffset!.bottom != null) {
-        bottom = bottom! + _tooltipData.positionOffset!.bottom!;
+        bottom = (bottom ?? 0) + _tooltipData.positionOffset!.bottom!;
       }
     }
 
