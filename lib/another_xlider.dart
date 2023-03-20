@@ -345,7 +345,7 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
     }
 
     Offset animationStart = const Offset(0, 0);
-    if (widget.tooltip?.disableAnimation == true) {
+    if (widget.tooltip != null && widget.tooltip!.disableAnimation != null && widget.tooltip!.disableAnimation!) {
       animationStart = const Offset(0, -1);
     }
 
@@ -372,7 +372,7 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
       _leftTooltipAnimationController = AnimationController(duration: const Duration(milliseconds: 200), vsync: this);
       _rightTooltipAnimationController = AnimationController(duration: const Duration(milliseconds: 200), vsync: this);
     } else {
-      if (_tooltipData.alwaysShowTooltip) {
+      if (_tooltipData.alwaysShowTooltip!) {
         _rightTooltipOpacity = _leftTooltipOpacity = 1;
       }
     }
@@ -670,10 +670,10 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
     _tooltipData.leftSuffix = widgetTooltip.leftSuffix;
     _tooltipData.rightPrefix = widgetTooltip.rightPrefix;
     _tooltipData.rightSuffix = widgetTooltip.rightSuffix;
-    _tooltipData.alwaysShowTooltip = widgetTooltip.alwaysShowTooltip;
-    _tooltipData.disabled = widgetTooltip.disabled;
-    _tooltipData.disableAnimation = widgetTooltip.disableAnimation;
-    _tooltipData.direction = widgetTooltip.direction;
+    _tooltipData.alwaysShowTooltip = widgetTooltip.alwaysShowTooltip ?? false;
+    _tooltipData.disabled = widgetTooltip.disabled ?? false;
+    _tooltipData.disableAnimation = widgetTooltip.disableAnimation ?? false;
+    _tooltipData.direction = widgetTooltip.direction ?? FlutterSliderTooltipDirection.top;
     _tooltipData.positionOffset = widgetTooltip.positionOffset;
     _tooltipData.format = widgetTooltip.format;
     _tooltipData.custom = widgetTooltip.custom;
@@ -1320,7 +1320,6 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
           feedback: Container(),
           child: Stack(
             clipBehavior: Clip.none,
-            alignment: Alignment.center,
             children: [
               _tooltip(side: 'left', value: _outputLowerValue, opacity: _leftTooltipOpacity, animation: _leftTooltipAnimation),
               leftHandler,
@@ -1340,7 +1339,7 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
           xDragTmp = (_.position.dx - _containerLeft - _leftHandlerXPosition!);
           yDragTmp = (_.position.dy - _containerTop - _leftHandlerYPosition!);
 
-          if (!_tooltipData.disabled && _tooltipData.alwaysShowTooltip == false) {
+          if (!_tooltipData.disabled! && _tooltipData.alwaysShowTooltip == false) {
             _leftTooltipOpacity = 1;
             _leftTooltipAnimationController.forward();
 
@@ -1397,7 +1396,7 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
   }
 
   void _hideTooltips() {
-    if (!_tooltipData.alwaysShowTooltip) {
+    if (!_tooltipData.alwaysShowTooltip!) {
       _leftTooltipOpacity = 0;
       _rightTooltipOpacity = 0;
       _leftTooltipAnimationController.reset();
@@ -1426,7 +1425,6 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
           feedback: Container(),
           child: Stack(
             clipBehavior: Clip.none,
-            alignment: Alignment.center,
             children: ([
               _tooltip(side: 'right', value: _outputUpperValue, opacity: _rightTooltipOpacity, animation: _rightTooltipAnimation),
               rightHandler,
@@ -1436,7 +1434,7 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
         onPointerMove: (_) {
           __dragging = true;
 
-          if (!_tooltipData.disabled && _tooltipData.alwaysShowTooltip == false) {
+          if (!_tooltipData.disabled! && _tooltipData.alwaysShowTooltip == false) {
             _rightTooltipOpacity = 1;
           }
           _rightHandlerMove(_);
@@ -1451,7 +1449,7 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
           xDragTmp = (_.position.dx - _containerLeft - _rightHandlerXPosition!);
           yDragTmp = (_.position.dy - _containerTop - _rightHandlerYPosition!);
 
-          if (!_tooltipData.disabled && _tooltipData.alwaysShowTooltip == false) {
+          if (!_tooltipData.disabled! && _tooltipData.alwaysShowTooltip == false) {
             _rightTooltipOpacity = 1;
             _rightTooltipAnimationController.forward();
 
@@ -1529,12 +1527,13 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
   }
 
   drawHandlers() {
-    List<Positioned> items = [Function.apply(_inactiveTrack, []), Function.apply(_centralWidget, []), Function.apply(_activeTrack, [])];
+    List<Positioned> items = [Function.apply(_inactiveTrack, []), Function.apply(_centralWidget, []), Function.apply(_activeTrack, []), Function.apply(_inactiveRightTrack, [])];
     items.addAll(_points);
 
     double tappedPositionWithPadding = 0;
 
-    items.add(Positioned(
+    items.add(
+      Positioned(
         left: 0,
         right: 0,
         top: 0,
@@ -1586,14 +1585,14 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
                 if (widget.rangeSlider) {
                   if (_leftTapAndSlide) {
                     _trackBarSlideCallDragStated(0);
-                    if (!_tooltipData.disabled && _tooltipData.alwaysShowTooltip == false) {
+                    if (!_tooltipData.disabled! && _tooltipData.alwaysShowTooltip == false) {
                       _leftTooltipOpacity = 1;
                       _leftTooltipAnimationController.forward();
                     }
                     _leftHandlerMove(_, tappedPositionWithPadding: tappedPositionWithPadding);
                   } else {
                     _trackBarSlideCallDragStated(1);
-                    if (!_tooltipData.disabled && _tooltipData.alwaysShowTooltip == false) {
+                    if (!_tooltipData.disabled! && _tooltipData.alwaysShowTooltip == false) {
                       _rightTooltipOpacity = 1;
                       _rightTooltipAnimationController.forward();
                     }
@@ -1601,7 +1600,7 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
                   }
                 } else {
                   _trackBarSlideCallDragStated(1);
-                  if (!_tooltipData.disabled && _tooltipData.alwaysShowTooltip == false) {
+                  if (!_tooltipData.disabled! && _tooltipData.alwaysShowTooltip == false) {
                     _rightTooltipOpacity = 1;
                     _rightTooltipAnimationController.forward();
                   }
@@ -1662,7 +1661,7 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
 //              }
 
               if (_ignoreSteps.isEmpty) {
-                if ((widget.lockHandlers || __lockedHandlersDragOffset > 0) && !_tooltipData.disabled && _tooltipData.alwaysShowTooltip == false) {
+                if ((widget.lockHandlers || __lockedHandlersDragOffset > 0) && !_tooltipData.disabled! && _tooltipData.alwaysShowTooltip == false) {
                   _leftTooltipOpacity = 1;
                   _leftTooltipAnimationController.forward();
                   _rightTooltipOpacity = 1;
@@ -1678,13 +1677,16 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
               setState(() {});
             },
             child: Draggable(
-                axis: widget.axis,
-                feedback: Container(),
-                child: Container(
-                  color: Colors.transparent,
-                )),
+              axis: widget.axis,
+              feedback: Container(),
+              child: Container(
+                color: Colors.transparent,
+              ),
+            ),
           ),
-        )));
+        ),
+      ),
+    );
 
 //    items      ..addAll(_points);
 
@@ -1714,7 +1716,7 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
   }
 
   Positioned _tooltip({String? side, dynamic value, double? opacity, Animation? animation}) {
-    if (_tooltipData.disabled || value == '') {
+    if (_tooltipData.disabled! || value == '') {
       return Positioned(
         child: Container(),
       );
@@ -1758,34 +1760,41 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
     }
 
     Widget tooltipWidget = IgnorePointer(
-      child: Center(
-        child: FittedBox(
-          child: Container(
-            key: (side == 'left') ? leftTooltipKey : rightTooltipKey,
-            child: (widget.tooltip != null && widget.tooltip!.custom != null)
-                ? widget.tooltip!.custom!(value)
-                : Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: _tooltipData.boxStyle!.decoration,
-                    foregroundDecoration: _tooltipData.boxStyle!.foregroundDecoration,
-                    transform: _tooltipData.boxStyle!.transform,
-                    child: tooltipHolderWidget,
-                  ),
-          ),
+        child: Center(
+      child: FittedBox(
+        child: Container(
+//            height: ,
+//          height: __tooltipKEY.currentContext.size.height,
+          key: (side == 'left') ? leftTooltipKey : rightTooltipKey,
+//            alignment: Alignment.center,
+          child: (widget.tooltip != null && widget.tooltip!.custom != null)
+              ? widget.tooltip!.custom!(value)
+              : Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: _tooltipData.boxStyle!.decoration,
+                  foregroundDecoration: _tooltipData.boxStyle!.foregroundDecoration,
+                  transform: _tooltipData.boxStyle!.transform,
+                  child: tooltipHolderWidget),
         ),
       ),
-    );
+    ));
 
     double? top, right, bottom, left;
     switch (_tooltipData.direction) {
       case FlutterSliderTooltipDirection.top:
         top = 0;
+        left = 0;
+        right = 0;
         break;
       case FlutterSliderTooltipDirection.left:
         left = 0;
+        top = 0;
+        bottom = 0;
         break;
       case FlutterSliderTooltipDirection.right:
         right = 0;
+        top = 0;
+        bottom = 0;
         break;
       default:
         break;
@@ -1793,16 +1802,16 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
 
     if (_tooltipData.positionOffset != null) {
       if (_tooltipData.positionOffset!.top != null) {
-        top = (top ?? 0) + _tooltipData.positionOffset!.top!;
+        top = top! + _tooltipData.positionOffset!.top!;
       }
       if (_tooltipData.positionOffset!.left != null) {
-        left = (left ?? 0) + _tooltipData.positionOffset!.left!;
+        left = left! + _tooltipData.positionOffset!.left!;
       }
       if (_tooltipData.positionOffset!.right != null) {
-        right = (right ?? 0) + _tooltipData.positionOffset!.right!;
+        right = right! + _tooltipData.positionOffset!.right!;
       }
       if (_tooltipData.positionOffset!.bottom != null) {
-        bottom = (bottom ?? 0) + _tooltipData.positionOffset!.bottom!;
+        bottom = bottom! + _tooltipData.positionOffset!.bottom!;
       }
     }
 
@@ -1855,14 +1864,15 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
           height: height,
           width: width,
           decoration: BoxDecoration(
-              color: trackBarColor,
-              backgroundBlendMode: boxDecoration.backgroundBlendMode,
-              shape: boxDecoration.shape,
-              gradient: boxDecoration.gradient,
-              border: boxDecoration.border,
-              borderRadius: boxDecoration.borderRadius,
-              boxShadow: boxDecoration.boxShadow,
-              image: boxDecoration.image),
+            color: trackBarColor,
+            backgroundBlendMode: boxDecoration.backgroundBlendMode,
+            shape: boxDecoration.shape,
+            gradient: boxDecoration.gradient,
+            border: boxDecoration.border,
+            borderRadius: boxDecoration.borderRadius,
+            boxShadow: boxDecoration.boxShadow,
+            image: boxDecoration.image,
+          ),
         ),
       ),
     );
@@ -1945,6 +1955,64 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
               borderRadius: boxDecoration.borderRadius,
               boxShadow: boxDecoration.boxShadow,
               image: boxDecoration.image),
+        ),
+      ),
+    );
+  }
+
+  Positioned _inactiveRightTrack() {
+    BoxDecoration boxDecoration = widget.trackBar.inactiveRightTrackBar ?? const BoxDecoration();
+
+    Color trackBarColor = boxDecoration.color ?? const Color(0x00000000);
+    if (widget.disabled) {
+      trackBarColor = widget.trackBar.inactiveDisabledTrackBarColor;
+    }
+
+    double? top, bottom, left, right, width, height;
+    top = left = width = height = 0;
+    right = bottom = null;
+
+    if (widget.axis == Axis.horizontal) {
+      bottom = 0;
+      height = widget.trackBar.activeTrackBarHeight;
+
+      if (widget.rangeSlider) {
+        width = _containerWidthWithoutPadding! - _rightHandlerXPosition!;
+        left = _rightHandlerXPosition! + _handlersWidth! / 2;
+      }
+    } else {
+      // vertical
+      right = 0;
+      width = widget.trackBar.activeTrackBarHeight;
+
+      if (widget.rangeSlider) {
+        height = _containerHeightWithoutPadding! - _rightHandlerYPosition!;
+        top = _rightHandlerYPosition! + _handlersHeight! / 2;
+      }
+    }
+
+    width = (width < 0) ? 0 : width;
+    height = (height < 0) ? 0 : height;
+
+    return Positioned(
+      left: left,
+      right: right,
+      top: top,
+      bottom: bottom,
+      child: Center(
+        child: Container(
+          height: height,
+          width: width,
+          decoration: BoxDecoration(
+            color: trackBarColor,
+            backgroundBlendMode: boxDecoration.backgroundBlendMode,
+            shape: boxDecoration.shape,
+            gradient: boxDecoration.gradient,
+            border: boxDecoration.border,
+            borderRadius: boxDecoration.borderRadius,
+            boxShadow: boxDecoration.boxShadow,
+            image: boxDecoration.image,
+          ),
         ),
       ),
     );
@@ -2120,10 +2188,10 @@ class FlutterSliderTooltip {
   Widget? leftSuffix;
   Widget? rightPrefix;
   Widget? rightSuffix;
-  bool alwaysShowTooltip;
-  bool disabled;
-  bool disableAnimation;
-  FlutterSliderTooltipDirection direction;
+  bool? alwaysShowTooltip;
+  bool? disabled;
+  bool? disableAnimation;
+  FlutterSliderTooltipDirection? direction;
   FlutterSliderTooltipPositionOffset? positionOffset;
 
   FlutterSliderTooltip({
@@ -2135,10 +2203,10 @@ class FlutterSliderTooltip {
     this.leftSuffix,
     this.rightPrefix,
     this.rightSuffix,
-    this.alwaysShowTooltip = false,
-    this.disableAnimation = false,
-    this.disabled = false,
-    this.direction = FlutterSliderTooltipDirection.top,
+    this.alwaysShowTooltip,
+    this.disableAnimation,
+    this.disabled,
+    this.direction,
     this.positionOffset,
   });
 
@@ -2177,6 +2245,7 @@ class FlutterSliderTooltipBox {
 
 class FlutterSliderTrackBar {
   final BoxDecoration? inactiveTrackBar;
+  final BoxDecoration? inactiveRightTrackBar;
   final BoxDecoration? activeTrackBar;
   final Color activeDisabledTrackBarColor;
   final Color inactiveDisabledTrackBarColor;
@@ -2188,6 +2257,7 @@ class FlutterSliderTrackBar {
   const FlutterSliderTrackBar({
     this.inactiveTrackBar,
     this.activeTrackBar,
+    this.inactiveRightTrackBar,
     this.activeDisabledTrackBarColor = const Color(0xffb5b5b5),
     this.inactiveDisabledTrackBarColor = const Color(0xffe5e5e5),
     this.activeTrackBarHeight = 3.5,
