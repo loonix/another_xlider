@@ -2088,8 +2088,8 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
       }
     }
 
-    width = (width! < 0) ? 0 : width;
-    height = (height! < 0) ? 0 : height;
+    width = (width < 0) ? 0 : width;
+    height = (height < 0) ? 0 : height;
 
     return Positioned(
       left: left,
@@ -2145,8 +2145,8 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
       }
     }
 
-    width = (width! < 0) ? 0 : width;
-    height = (height! < 0) ? 0 : height;
+    width = (width < 0) ? 0 : width;
+    height = (height < 0) ? 0 : height;
 
     return Positioned(
       left: left,
