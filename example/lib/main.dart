@@ -1,3 +1,12 @@
+import 'package:another_xlider/models/fixed_value.dart';
+import 'package:another_xlider/models/handler.dart';
+import 'package:another_xlider/models/handler_animation.dart';
+import 'package:another_xlider/models/hatch_mark.dart';
+import 'package:another_xlider/models/hatch_mark_label.dart';
+import 'package:another_xlider/models/ignore_steps.dart';
+import 'package:another_xlider/models/slider_step.dart';
+import 'package:another_xlider/models/tooltip/tooltip.dart';
+import 'package:another_xlider/models/trackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:another_xlider/another_xlider.dart';
 
@@ -63,11 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 maximumDistance: 300,
                 rangeSlider: true,
                 rtl: true,
-                handlerAnimation: FlutterSliderHandlerAnimation(
-                    curve: Curves.elasticOut,
-                    reverseCurve: null,
-                    duration: Duration(milliseconds: 700),
-                    scale: 1.4),
+                handlerAnimation: FlutterSliderHandlerAnimation(curve: Curves.elasticOut, reverseCurve: null, duration: Duration(milliseconds: 700), scale: 1.4),
                 onDragging: (handlerIndex, lowerValue, upperValue) {
                   setState(() {
                     _lowerValue = lowerValue;
@@ -211,9 +216,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     color: Colors.black12,
                     border: Border.all(width: 3, color: Colors.blue),
                   ),
-                  activeTrackBar: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4),
-                      color: Colors.blue.withOpacity(0.5)),
+                  activeTrackBar: BoxDecoration(borderRadius: BorderRadius.circular(4), color: Colors.blue.withOpacity(0.5)),
                 ),
                 onDragging: (handlerIndex, lowerValue, upperValue) {
                   _lowerValue = lowerValue;
@@ -258,16 +261,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   linesDistanceFromTrackBar: 5,
                   density: 0.5,
                   labels: [
-                    FlutterSliderHatchMarkLabel(
-                        percent: 0, label: Text('Start')),
-                    FlutterSliderHatchMarkLabel(
-                        percent: 10, label: Text('10,000')),
-                    FlutterSliderHatchMarkLabel(
-                        percent: 50, label: Text('50 %')),
-                    FlutterSliderHatchMarkLabel(
-                        percent: 80, label: Text('80,000')),
-                    FlutterSliderHatchMarkLabel(
-                        percent: 100, label: Text('Finish')),
+                    FlutterSliderHatchMarkLabel(percent: 0, label: Text('Start')),
+                    FlutterSliderHatchMarkLabel(percent: 10, label: Text('10,000')),
+                    FlutterSliderHatchMarkLabel(percent: 50, label: Text('50 %')),
+                    FlutterSliderHatchMarkLabel(percent: 80, label: Text('80,000')),
+                    FlutterSliderHatchMarkLabel(percent: 100, label: Text('Finish')),
                   ],
                 ),
                 jump: true,
@@ -319,18 +317,11 @@ class _MyHomePageState extends State<MyHomePage> {
         decoration: BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-                color: Colors.blue.withOpacity(0.3),
-                spreadRadius: 0.05,
-                blurRadius: 5,
-                offset: Offset(0, 1))
-          ],
+          boxShadow: [BoxShadow(color: Colors.blue.withOpacity(0.3), spreadRadius: 0.05, blurRadius: 5, offset: Offset(0, 1))],
         ),
         child: Container(
           margin: EdgeInsets.all(5),
-          decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.3), shape: BoxShape.circle),
+          decoration: BoxDecoration(color: Colors.blue.withOpacity(0.3), shape: BoxShape.circle),
           child: Icon(
             icon,
             color: Colors.white,
