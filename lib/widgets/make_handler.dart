@@ -15,7 +15,8 @@ class MakeHandler extends StatelessWidget {
   final double? touchSize;
 
   const MakeHandler(
-      {this.id, this.handlerData, this.visibleTouchArea, this.width, this.height, this.animation, this.rtl = false, this.rangeSlider = false, this.axis, this.handlerIndex, this.touchSize});
+      {Key? key, this.id, this.handlerData, this.visibleTouchArea, this.width, this.height, this.animation, this.rtl = false, this.rangeSlider = false, this.axis, this.handlerIndex, this.touchSize})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
