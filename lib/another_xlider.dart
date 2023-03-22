@@ -2,52 +2,127 @@
 
 /*
 * *
-* * Written by Ali Azmoude <ali.azmoude@gmail.com>
+* * Initially written by Ali Azmoude <ali.azmoude@gmail.com>
+* * Refactored by loonix and the internet :)
 * *
 * *
-* *
-* * When I wrote this, only God and I understood what I was doing.
+* * When he wrote this, only God and him understood what he was doing.
 * * Now, God only knows "Karl Weierstrass"
 * */
 
+import 'package:another_xlider/enums/hatch_mark_alignment_enum.dart';
+import 'package:another_xlider/enums/tooltip_direction_enum.dart';
+import 'package:another_xlider/models/fixed_value.dart';
+import 'package:another_xlider/models/handler.dart';
+import 'package:another_xlider/models/handler_animation.dart';
+import 'package:another_xlider/models/hatch_mark.dart';
+import 'package:another_xlider/models/hatch_mark_label.dart';
+import 'package:another_xlider/models/ignore_steps.dart';
+import 'package:another_xlider/models/range_step.dart';
+import 'package:another_xlider/models/slider_step.dart';
+import 'package:another_xlider/models/tooltip/tooltip.dart';
+import 'package:another_xlider/models/tooltip/tooltip_box.dart';
+import 'package:another_xlider/models/trackbar.dart';
+import 'package:another_xlider/widgets/make_handler.dart';
+import 'package:another_xlider/widgets/sized_box.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
 class FlutterSlider extends StatefulWidget {
+  /// The axis on which the slider should be displayed. Can be either vertical or horizontal.
   final Axis axis;
+
+  /// The width of the slider handler.
   final double? handlerWidth;
+
+  /// The height of the slider handler.
   final double? handlerHeight;
+
+  /// The custom handler widget to use for the left handler.
   final FlutterSliderHandler? handler;
+
+  /// The custom handler widget to use for the right handler, if this is a range slider.
   final FlutterSliderHandler? rightHandler;
-  final Function(int handlerIndex, dynamic lowerValue, dynamic upperValue)?
-      onDragStarted;
-  final Function(int handlerIndex, dynamic lowerValue, dynamic upperValue)?
-      onDragCompleted;
-  final Function(int handlerIndex, dynamic lowerValue, dynamic upperValue)?
-      onDragging;
+
+  /// Callback function that is called when the user starts dragging one of the handlers.
+  final Function(int handlerIndex, dynamic lowerValue, dynamic upperValue)? onDragStarted;
+
+  /// Callback function that is called when the user stops dragging one of the handlers.
+  final Function(int handlerIndex, dynamic lowerValue, dynamic upperValue)? onDragCompleted;
+
+  /// Callback function that is called while the user is dragging one of the handlers.
+  final Function(int handlerIndex, dynamic lowerValue, dynamic upperValue)? onDragging;
+
+  /// The minimum value that can be selected on the slider.
   final double? min;
+
+  /// The maximum value that can be selected on the slider.
   final double? max;
+
+  /// The initial values for the slider handles. If the slider is a range slider, this should be a list with two values.
   final List<double> values;
+
+  /// A list of fixed values that can be selected on the slider.
   final List<FlutterSliderFixedValue>? fixedValues;
+
+  /// Determines whether this is a range slider or a single-value slider.
   final bool rangeSlider;
+
+  /// Determines whether the slider should be displayed right-to-left.
   final bool rtl;
+
+  /// Determines whether the slider should snap to fixed values.
   final bool jump;
+
+  /// Determines whether a tap on the slider should set the nearest handle to that position.
   final bool selectByTap;
+
+  /// A list of values that should be ignored when snapping to fixed values.
   final List<FlutterSliderIgnoreSteps> ignoreSteps;
+
+  /// Determines whether the slider should be disabled.
   final bool disabled;
+
+  /// The size of the touch area for each handler.
   final double? touchSize;
+
+  /// Determines whether the touch area for each handler should be visible.
   final bool visibleTouchArea;
+
+  /// The minimum distance between the two handles of a range slider.
   final double minimumDistance;
+
+  /// The maximum distance between the two handles of a range slider.
   final double maximumDistance;
+
+  /// The animation settings for the slider handlers.
   final FlutterSliderHandlerAnimation handlerAnimation;
+
+  /// The settings for the slider tooltip.
   final FlutterSliderTooltip? tooltip;
+
+  /// The settings for the slider track bar.
   final FlutterSliderTrackBar trackBar;
+
+  /// The settings for the slider step.
   final FlutterSliderStep step;
+
+  /// The settings for the slider hatch mark.
   final FlutterSliderHatchMark? hatchMark;
+
+  /// Determines whether the slider should be centered at the origin of the slider axis.
   final bool centeredOrigin;
+
+  /// Determines whether the handles should be locked together when dragging.
   final bool lockHandlers;
+
+  /// The maximum distance between the two handles to lock the handles together.
   final double? lockDistance;
+
+  /// The decoration to apply to the slider.
   final BoxDecoration? decoration;
+
+  /// The foreground decoration to apply to the slider.
   final BoxDecoration? foregroundDecoration;
 
   FlutterSlider(
@@ -85,20 +160,12 @@ class FlutterSlider extends StatefulWidget {
       this.decoration,
       this.foregroundDecoration})
       : assert(touchSize == null || (touchSize >= 5 && touchSize <= 50)),
-        assert((ignoreSteps.isNotEmpty && step.rangeList == null) ||
-            (ignoreSteps.isEmpty)),
-        assert((step.rangeList != null &&
-                minimumDistance == 0 &&
-                maximumDistance == 0) ||
+        assert((ignoreSteps.isNotEmpty && step.rangeList == null) || (ignoreSteps.isEmpty)),
+        assert((step.rangeList != null && minimumDistance == 0 && maximumDistance == 0) ||
             (minimumDistance > 0 && step.rangeList == null) ||
             (maximumDistance > 0 && step.rangeList == null) ||
             (step.rangeList == null)),
-        assert(centeredOrigin == false ||
-            (centeredOrigin == true &&
-                rangeSlider == false &&
-                lockHandlers == false &&
-                minimumDistance == 0 &&
-                maximumDistance == 0)),
+        assert(centeredOrigin == false || (centeredOrigin == true && rangeSlider == false && lockHandlers == false && minimumDistance == 0 && maximumDistance == 0)),
         assert(lockHandlers == false ||
             (centeredOrigin == false &&
                 (ignoreSteps.isEmpty) &&
@@ -108,14 +175,9 @@ class FlutterSlider extends StatefulWidget {
                 lockHandlers == true &&
                 lockDistance != null &&
                 step.rangeList == null &&
-                lockDistance >=
-                    step.step /* && values[1] - values[0] == lockDistance*/)),
-        assert(
-            fixedValues != null || (min != null && max != null && min <= max),
-            "Min and Max are required if fixedValues is null"),
-        assert(
-            rangeSlider == false || (rangeSlider == true && values.length > 1),
-            "Range slider needs two values"),
+                lockDistance >= step.step /* && values[1] - values[0] == lockDistance*/)),
+        assert(fixedValues != null || (min != null && max != null && min <= max), "Min and Max are required if fixedValues is null"),
+        assert(rangeSlider == false || (rangeSlider == true && values.length > 1), "Range slider needs two values"),
 //        assert( fixedValues == null || (fixedValues != null && values[0] >= 0 && values[0] <= 100), "When using fixedValues, you should set values within the range of fixedValues" ),
 //        assert( fixedValues == null || (fixedValues != null && values.length > 1 && values[1] >= values[0] && values[1] <= 100), "When using fixedValues, you should set values within the range of fixedValues" ),
         super(key: key);
@@ -124,105 +186,160 @@ class FlutterSlider extends StatefulWidget {
   FlutterSliderState createState() => FlutterSliderState();
 }
 
-class FlutterSliderState extends State<FlutterSlider>
-    with TickerProviderStateMixin {
+class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMixin {
+  /// A boolean flag to determine if it is the first initialization call or not.
   bool __isInitCall = true;
 
+  /// Size of the touch area around the handlers.
   double? _touchSize;
 
+  /// Widgets for the left and right handlers.
   late Widget leftHandler;
   late Widget rightHandler;
 
+  /// X and Y position of the left and right handlers.
   double? _leftHandlerXPosition = 0;
   double? _rightHandlerXPosition = 0;
   double? _leftHandlerYPosition = 0;
   double? _rightHandlerYPosition = 0;
 
+  /// Lower and upper values selected by the user.
   double? _lowerValue = 0;
   double? _upperValue = 0;
+
+  /// Selected lower and upper values after applying formatting and conversion.
   dynamic _outputLowerValue = 0;
   dynamic _outputUpperValue = 0;
 
+  /// Minimum and maximum values of the slider.
   double? _realMin;
   double? _realMax;
 
+  /// Divisions of the slider.
   late double _divisions;
+
+  /// Padding around the handlers.
   double _handlersPadding = 0;
 
+  /// Keys for the left and right handlers, container, and tooltips.
   GlobalKey leftHandlerKey = GlobalKey();
   GlobalKey rightHandlerKey = GlobalKey();
   GlobalKey containerKey = GlobalKey();
   GlobalKey leftTooltipKey = GlobalKey();
   GlobalKey rightTooltipKey = GlobalKey();
 
+  /// Width and height of the handlers.
   double? _handlersWidth;
   double? _handlersHeight;
 
+  // This variable holds the maximum width constraint value that is set for the widget
   late double _constraintMaxWidth;
+
+  // This variable holds the maximum height constraint value that is set for the widget
   late double _constraintMaxHeight;
 
+  // This variable holds the container width without padding
   double? _containerWidthWithoutPadding;
+
+  // This variable holds the container height without padding
   double? _containerHeightWithoutPadding;
 
+  // This variable holds the left position of the slider container
   double _containerLeft = 0;
+
+  // This variable holds the top position of the slider container
   double _containerTop = 0;
 
+  // This variable holds the tooltip data that is used to display the tooltip on the slider
   late FlutterSliderTooltip _tooltipData;
 
+  // This list holds all the positioned widgets in the slider
   late List<Function> _positionedItems;
 
+  // This variable holds the opacity of the right tooltip
   double _rightTooltipOpacity = 0;
+
+  // This variable holds the opacity of the left tooltip
   double _leftTooltipOpacity = 0;
 
+  // This animation controller is used for the right tooltip animation
   late AnimationController _rightTooltipAnimationController;
+
+  // This animation is used for the right tooltip animation
   Animation<Offset>? _rightTooltipAnimation;
+
+  // This animation controller is used for the left tooltip animation
   late AnimationController _leftTooltipAnimationController;
+
+  // This animation is used for the left tooltip animation
   Animation<Offset>? _leftTooltipAnimation;
 
+  // This animation controller is used for the left handler scale animation
   AnimationController? _leftHandlerScaleAnimationController;
-  Animation<double>? _leftHandlerScaleAnimation;
-  AnimationController? _rightHandlerScaleAnimationController;
-  Animation<double>? _rightHandlerScaleAnimation;
 
+  // This animation is used for the left handler scale animation
+  Animation<Object>? _leftHandlerScaleAnimation;
+
+  // This animation controller is used for the right handler scale animation
+  AnimationController? _rightHandlerScaleAnimationController;
+
+  // This animation is used for the right handler scale animation
+  Animation<Object>? _rightHandlerScaleAnimation;
+
+  // This variable holds the container height
   double? _containerHeight;
+
+  // This variable holds the container width
   double? _containerWidth;
 
+  // This variable holds the decimal scale value for the slider
   int _decimalScale = 0;
 
+  // These variables hold the temporary X and Y drag positions
   double xDragTmp = 0;
   double yDragTmp = 0;
 
+  // These variables hold the X and Y drag start positions
   double? xDragStart;
   double? yDragStart;
 
+  // These variables hold the step, minimum and maximum values of the slider widget
   double? _widgetStep;
   double? _widgetMin;
   double? _widgetMax;
+
+  // This list holds the ignore steps for the slider widget
   List<FlutterSliderIgnoreSteps> _ignoreSteps = [];
+
+  // This list holds the fixed values for the slider widget
   final List<FlutterSliderFixedValue> _fixedValues = [];
 
+  // This list holds the positioned points in the slider
   List<Positioned> _points = [];
 
+  // This variable holds the flag indicating if the slider is being dragged
   bool __dragging = false;
 
-  double? __dAxis,
-      __rAxis,
-      __axisDragTmp,
-      __axisPosTmp,
-      __containerSizeWithoutPadding,
-      __rightHandlerPosition,
-      __leftHandlerPosition,
-      __containerSizeWithoutHalfPadding;
+  // These variables hold temporary Axis, Right Axis, Axis Drag and Axis Position values
+  double? __dAxis, __rAxis, __axisDragTmp, __axisPosTmp, __containerSizeWithoutPadding, __rightHandlerPosition, __leftHandlerPosition, __containerSizeWithoutHalfPadding;
 
+  // This variable holds the old orientation of the slider
   Orientation? oldOrientation;
 
+  // This variable holds the locked handlers drag offset
   double __lockedHandlersDragOffset = 0;
+
+  // Distance from the right and left handlers
   double? _distanceFromRightHandler, _distanceFromLeftHandler;
+  // The distance between the two handlers
   double _handlersDistance = 0;
 
+  // Flags for whether sliding is caused by active trackbar, left tap and slide, or right tap and slide
   bool _slidingByActiveTrackBar = false;
   bool _leftTapAndSlide = false;
   bool _rightTapAndSlide = false;
+
+  // Flag for whether trackBarSlideOnDragStarted() was called
   bool _trackBarSlideOnDragStartedCalled = false;
 
   @override
@@ -255,14 +372,12 @@ class FlutterSliderState extends State<FlutterSlider>
       builder: (context, orientation) {
         oldOrientation ??= MediaQuery.of(context).orientation;
 
-        return LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
+        return LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
           _constraintMaxWidth = constraints.maxWidth;
           _constraintMaxHeight = constraints.maxHeight;
 
           _containerWidthWithoutPadding = _constraintMaxWidth - _handlersWidth!;
-          _containerHeightWithoutPadding =
-              _constraintMaxHeight - _handlersHeight!;
+          _containerHeightWithoutPadding = _constraintMaxHeight - _handlersHeight!;
 
           double? sliderProperSize = _findProperSliderSize();
           if (widget.axis == Axis.vertical) {
@@ -271,8 +386,7 @@ class FlutterSliderState extends State<FlutterSlider>
               layoutWidth = 0;
             }
             __containerSizeWithoutPadding = _containerHeightWithoutPadding;
-            _containerWidth =
-                [(sliderProperSize! * 2), layoutWidth].reduce(max);
+            _containerWidth = [(sliderProperSize! * 2), layoutWidth].reduce(max);
             _containerHeight = constraints.maxHeight;
           } else {
             double layoutHeight = constraints.maxHeight;
@@ -280,8 +394,7 @@ class FlutterSliderState extends State<FlutterSlider>
               layoutHeight = 0;
             }
             _containerWidth = constraints.maxWidth;
-            _containerHeight =
-                [(sliderProperSize! * 2), layoutHeight].reduce(max);
+            _containerHeight = [(sliderProperSize! * 2), layoutHeight].reduce(max);
             __containerSizeWithoutPadding = _containerWidthWithoutPadding;
           }
 
@@ -303,7 +416,7 @@ class FlutterSliderState extends State<FlutterSlider>
           return Stack(
             clipBehavior: Clip.none,
             children: <Widget>[
-//                  ..._points,
+              //..._points,
               Container(
                 key: containerKey,
                 height: _containerHeight,
@@ -323,10 +436,7 @@ class FlutterSliderState extends State<FlutterSlider>
   }
 
   double? _findProperSliderSize() {
-    List<double?> sizes = [
-      widget.trackBar.activeTrackBarHeight,
-      widget.trackBar.inactiveTrackBarHeight
-    ];
+    List<double?> sizes = [widget.trackBar.activeTrackBarHeight, widget.trackBar.inactiveTrackBarHeight];
     if (widget.axis == Axis.horizontal) {
       sizes.add(_handlersHeight);
     } else {
@@ -356,36 +466,34 @@ class FlutterSliderState extends State<FlutterSlider>
     //    }
 
     if (__isInitCall) {
-      _leftHandlerScaleAnimationController = AnimationController(
-          duration: widget.handlerAnimation.duration, vsync: this);
-      _rightHandlerScaleAnimationController = AnimationController(
-          duration: widget.handlerAnimation.duration, vsync: this);
+      _leftHandlerScaleAnimationController = AnimationController(duration: widget.handlerAnimation.duration, vsync: this);
+      _rightHandlerScaleAnimationController = AnimationController(duration: widget.handlerAnimation.duration, vsync: this);
     }
 
-    _leftHandlerScaleAnimation =
-        Tween(begin: 1.0, end: widget.handlerAnimation.scale).animate(
-            CurvedAnimation(
-                parent: _leftHandlerScaleAnimationController!,
-                reverseCurve: widget.handlerAnimation.reverseCurve,
-                curve: widget.handlerAnimation.curve));
-    _rightHandlerScaleAnimation =
-        Tween(begin: 1.0, end: widget.handlerAnimation.scale).animate(
-            CurvedAnimation(
-                parent: _rightHandlerScaleAnimationController!,
-                reverseCurve: widget.handlerAnimation.reverseCurve,
-                curve: widget.handlerAnimation.curve));
+    _leftHandlerScaleAnimation = Tween(
+      begin: 1.0,
+      end: widget.handlerAnimation.scale,
+    ).animate(CurvedAnimation(
+      parent: _leftHandlerScaleAnimationController!,
+      reverseCurve: widget.handlerAnimation.reverseCurve,
+      curve: widget.handlerAnimation.curve,
+    ));
+    _rightHandlerScaleAnimation = Tween(
+      begin: 1.0,
+      end: widget.handlerAnimation.scale,
+    ).animate(CurvedAnimation(
+      parent: _rightHandlerScaleAnimationController!,
+      reverseCurve: widget.handlerAnimation.reverseCurve,
+      curve: widget.handlerAnimation.curve,
+    ));
 
     _setParameters();
     _setValues();
 
-    if (widget.rangeSlider == true &&
-        widget.maximumDistance > 0 &&
-        (_upperValue! - _lowerValue!) > widget.maximumDistance) {
+    if (widget.rangeSlider == true && widget.maximumDistance > 0 && (_upperValue! - _lowerValue!) > widget.maximumDistance) {
       throw 'lower and upper distance is more than maximum distance';
     }
-    if (widget.rangeSlider == true &&
-        widget.minimumDistance > 0 &&
-        (_upperValue! - _lowerValue!) < widget.minimumDistance) {
+    if (widget.rangeSlider == true && widget.minimumDistance > 0 && (_upperValue! - _lowerValue!) < widget.minimumDistance) {
       throw 'lower and upper distance is less than minimum distance';
     }
 
@@ -414,27 +522,17 @@ class FlutterSliderState extends State<FlutterSlider>
       _rightTooltipOpacity = (_tooltipData.alwaysShowTooltip == true) ? 1 : 0;
       _leftTooltipOpacity = (_tooltipData.alwaysShowTooltip == true) ? 1 : 0;
 
-      _leftTooltipAnimationController = AnimationController(
-          duration: const Duration(milliseconds: 200), vsync: this);
-      _rightTooltipAnimationController = AnimationController(
-          duration: const Duration(milliseconds: 200), vsync: this);
+      _leftTooltipAnimationController = AnimationController(duration: const Duration(milliseconds: 200), vsync: this);
+      _rightTooltipAnimationController = AnimationController(duration: const Duration(milliseconds: 200), vsync: this);
     } else {
-      if (_tooltipData.alwaysShowTooltip) {
+      if (_tooltipData.alwaysShowTooltip!) {
         _rightTooltipOpacity = _leftTooltipOpacity = 1;
       }
     }
 
-    _leftTooltipAnimation =
-        Tween<Offset>(begin: animationStart, end: animationFinish).animate(
-            CurvedAnimation(
-                parent: _leftTooltipAnimationController,
-                curve: Curves.fastOutSlowIn));
+    _leftTooltipAnimation = Tween<Offset>(begin: animationStart, end: animationFinish).animate(CurvedAnimation(parent: _leftTooltipAnimationController, curve: Curves.fastOutSlowIn));
 
-    _rightTooltipAnimation =
-        Tween<Offset>(begin: animationStart, end: animationFinish).animate(
-            CurvedAnimation(
-                parent: _rightTooltipAnimationController,
-                curve: Curves.fastOutSlowIn));
+    _rightTooltipAnimation = Tween<Offset>(begin: animationStart, end: animationFinish).animate(CurvedAnimation(parent: _rightTooltipAnimationController, curve: Curves.fastOutSlowIn));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) {
@@ -455,31 +553,18 @@ class FlutterSliderState extends State<FlutterSlider>
     if (widget.hatchMark == null || widget.hatchMark!.disabled) return;
     _points = [];
 
-    double maxTrackBarHeight = [
-      widget.trackBar.inactiveTrackBarHeight,
-      widget.trackBar.activeTrackBarHeight
-    ].reduce(max);
+    // Calculates the maximum track bar height from the inactive and active track bar heights.
+    double maxTrackBarHeight = (<double>[widget.trackBar.inactiveTrackBarHeight, widget.trackBar.activeTrackBarHeight]).reduce((a, b) => a > b ? a : b);
 
     FlutterSliderHatchMark hatchMark = FlutterSliderHatchMark();
     hatchMark.disabled = widget.hatchMark!.disabled;
     hatchMark.density = widget.hatchMark!.density;
     hatchMark.smallDensity = widget.hatchMark!.smallDensity;
-    hatchMark.linesDistanceFromTrackBar =
-        widget.hatchMark!.linesDistanceFromTrackBar ?? 0;
-    hatchMark.labelsDistanceFromTrackBar =
-        widget.hatchMark!.labelsDistanceFromTrackBar ?? 0;
-    hatchMark.smallLine = widget.hatchMark!.smallLine ??
-        const FlutterSliderSizedBox(
-            height: 5,
-            width: 1,
-            decoration: BoxDecoration(color: Colors.black45));
-    hatchMark.bigLine = widget.hatchMark!.bigLine ??
-        const FlutterSliderSizedBox(
-            height: 9,
-            width: 2,
-            decoration: BoxDecoration(color: Colors.black45));
-    hatchMark.labelBox = widget.hatchMark!.labelBox ??
-        const FlutterSliderSizedBox(height: 50, width: 50);
+    hatchMark.linesDistanceFromTrackBar = widget.hatchMark!.linesDistanceFromTrackBar ?? 0;
+    hatchMark.labelsDistanceFromTrackBar = widget.hatchMark!.labelsDistanceFromTrackBar ?? 0;
+    hatchMark.smallLine = widget.hatchMark!.smallLine ?? const FlutterSliderSizedBox(height: 5, width: 1, decoration: BoxDecoration(color: Colors.black45));
+    hatchMark.bigLine = widget.hatchMark!.bigLine ?? const FlutterSliderSizedBox(height: 9, width: 2, decoration: BoxDecoration(color: Colors.black45));
+    hatchMark.labelBox = widget.hatchMark!.labelBox ?? const FlutterSliderSizedBox(height: 50, width: 50);
     hatchMark.labels = widget.hatchMark!.labels;
     hatchMark.linesAlignment = widget.hatchMark!.linesAlignment;
     hatchMark.displayLines = widget.hatchMark!.displayLines ?? false;
@@ -490,10 +575,10 @@ class FlutterSliderState extends State<FlutterSlider>
       double? linesTop, linesLeft, linesRight, linesBottom;
 
       if (widget.axis == Axis.horizontal) {
-//      top = hatchMark.linesDistanceFromTrackBar - 2.25;
+        // top = hatchMark.linesDistanceFromTrackBar - 2.25;
         distance = ((_constraintMaxWidth - _handlersWidth!) / percent);
       } else {
-//      left = hatchMark.linesDistanceFromTrackBar - 3.62;
+        // left = hatchMark.linesDistanceFromTrackBar - 3.62;
         distance = ((_constraintMaxHeight - _handlersHeight!) / percent);
       }
 
@@ -540,46 +625,37 @@ class FlutterSliderState extends State<FlutterSlider>
         );
 
         if (widget.axis == Axis.horizontal) {
-//        left = (p * distance) + _handlersPadding - labelBoxHalfSize - 0.5;
+          // left = (p * distance) + _handlersPadding - labelBoxHalfSize - 0.5;
           linesLeft = (p * distance) + _handlersPadding - 0.75;
-          if (hatchMark.linesAlignment ==
-              FlutterSliderHatchMarkAlignment.right) {
+          if (hatchMark.linesAlignment == FlutterSliderHatchMarkAlignment.right) {
             linesTop = _containerHeight! / 2 + maxTrackBarHeight / 2 + 2;
             linesBottom = _containerHeight! / 2 - maxTrackBarHeight - 15;
           } else {
             linesTop = _containerHeight! / 2 - maxTrackBarHeight - 15;
             linesBottom = _containerHeight! / 2 + maxTrackBarHeight / 2 + 2;
           }
-          if (hatchMark.linesAlignment ==
-              FlutterSliderHatchMarkAlignment.left) {
+          if (hatchMark.linesAlignment == FlutterSliderHatchMarkAlignment.left) {
             linesBottom += hatchMark.linesDistanceFromTrackBar!;
           } else {
             linesTop += hatchMark.linesDistanceFromTrackBar!;
           }
         } else {
           linesTop = (p * distance) + _handlersPadding - 0.5;
-          if (hatchMark.linesAlignment ==
-              FlutterSliderHatchMarkAlignment.right) {
+          if (hatchMark.linesAlignment == FlutterSliderHatchMarkAlignment.right) {
             linesLeft = _containerWidth! / 2 + maxTrackBarHeight / 2 + 2;
             linesRight = _containerWidth! / 2 - maxTrackBarHeight - 15;
           } else {
             linesLeft = _containerWidth! / 2 - maxTrackBarHeight - 15;
             linesRight = _containerWidth! / 2 + maxTrackBarHeight / 2 + 2;
           }
-          if (hatchMark.linesAlignment ==
-              FlutterSliderHatchMarkAlignment.left) {
+          if (hatchMark.linesAlignment == FlutterSliderHatchMarkAlignment.left) {
             linesRight += hatchMark.linesDistanceFromTrackBar!;
           } else {
             linesLeft += hatchMark.linesDistanceFromTrackBar!;
           }
         }
 
-        _points.add(Positioned(
-            top: linesTop,
-            bottom: linesBottom,
-            left: linesLeft,
-            right: linesRight,
-            child: barLine));
+        _points.add(Positioned(top: linesTop, bottom: linesBottom, left: linesLeft, right: linesRight, child: barLine));
       }
     }
 
@@ -604,12 +680,8 @@ class FlutterSliderState extends State<FlutterSlider>
 
         labelWidget = [
           Container(
-            height: widget.axis == Axis.vertical
-                ? hatchMark.labelBox!.height
-                : null,
-            width: widget.axis == Axis.horizontal
-                ? hatchMark.labelBox!.width
-                : null,
+            height: widget.axis == Axis.vertical ? hatchMark.labelBox!.height : null,
+            width: widget.axis == Axis.horizontal ? hatchMark.labelBox!.width : null,
             decoration: hatchMark.labelBox!.decoration,
             foregroundDecoration: hatchMark.labelBox!.foregroundDecoration,
             transform: hatchMark.labelBox!.transform,
@@ -623,11 +695,8 @@ class FlutterSliderState extends State<FlutterSlider>
             mainAxisAlignment: MainAxisAlignment.center,
             children: labelWidget,
           );
-          left = tr! * _containerWidthWithoutPadding! / 100 -
-              0.5 +
-              _handlersPadding -
-              labelBoxHalfSize;
-//          left = (tr * distance) + _handlersPadding - labelBoxHalfSize - 0.5;
+          left = tr! * _containerWidthWithoutPadding! / 100 - 0.5 + _handlersPadding - labelBoxHalfSize;
+          // left = (tr * distance) + _handlersPadding - labelBoxHalfSize - 0.5;
 
           top = hatchMark.labelsDistanceFromTrackBar;
           bottom = 0;
@@ -636,16 +705,12 @@ class FlutterSliderState extends State<FlutterSlider>
             mainAxisAlignment: MainAxisAlignment.center,
             children: labelWidget,
           );
-          top = tr! * _containerHeightWithoutPadding! / 100 -
-              0.5 +
-              _handlersPadding -
-              labelBoxHalfSize;
+          top = tr! * _containerHeightWithoutPadding! / 100 - 0.5 + _handlersPadding - labelBoxHalfSize;
           right = 0;
           left = hatchMark.labelsDistanceFromTrackBar;
         }
 
-        _points.add(Positioned(
-            top: top, bottom: bottom, left: left, right: right, child: bar));
+        _points.add(Positioned(top: top, bottom: bottom, left: left, right: right, child: bar));
       }
     }
   }
@@ -666,16 +731,12 @@ class FlutterSliderState extends State<FlutterSlider>
         }
       }
     } else {
-      if (!(widget.fixedValues != null &&
-          widget.values[0] >= 0 &&
-          widget.values[0] <= 100)) {
+      if (!(widget.fixedValues != null && widget.values[0] >= 0 && widget.values[0] <= 100)) {
         throw 'When using fixedValues, you should set values within the range of fixedValues';
       }
 
       if (widget.rangeSlider == true && widget.values.length > 1) {
-        if (!(widget.fixedValues != null &&
-            widget.values[1] >= 0 &&
-            widget.values[1] <= 100)) {
+        if (!(widget.fixedValues != null && widget.values[1] >= 0 && widget.values[1] <= 100)) {
           throw 'When using fixedValues, you should set values within the range of fixedValues';
         }
       }
@@ -721,25 +782,21 @@ class FlutterSliderState extends State<FlutterSlider>
             if (fixedPercent > lowerIgnoreBound + 1 || lowerIgnoreBound == 0) {
               if (lowerIgnoreBound > 0) lowerIgnoreBound += 1;
               upperIgnoreBound = fixedPercent - 1;
-              _ignoreSteps.add(FlutterSliderIgnoreSteps(
-                  from: lowerIgnoreBound, to: upperIgnoreBound));
+              _ignoreSteps.add(FlutterSliderIgnoreSteps(from: lowerIgnoreBound, to: upperIgnoreBound));
             }
             lowerIgnoreBound = fixedPercent;
             break;
           }
         }
-        _fixedValues.add(FlutterSliderFixedValue(
-            percent: fixedPercent.toInt(), value: fValue));
+        _fixedValues.add(FlutterSliderFixedValue(percent: fixedPercent.toInt(), value: fValue));
         if (fValue.toString().isNotEmpty) {
           fixedV.add(fixedPercent);
         }
       }
 
-      double? biggestPoint =
-          _findBiggestIgnorePoint(ignoreBeyondBoundaries: true);
+      double? biggestPoint = _findBiggestIgnorePoint(ignoreBeyondBoundaries: true);
       if (!fixedV.contains(100)) {
-        _ignoreSteps
-            .add(FlutterSliderIgnoreSteps(from: biggestPoint! + 1, to: 101));
+        _ignoreSteps.add(FlutterSliderIgnoreSteps(from: biggestPoint! + 1, to: 101));
       }
     } else {
       _realMax = _widgetMax! - _widgetMin!;
@@ -758,25 +815,19 @@ class FlutterSliderState extends State<FlutterSlider>
       _rightHandlerWidget,
     ];
 
-    FlutterSliderTooltip widgetTooltip =
-        widget.tooltip ?? FlutterSliderTooltip();
+    FlutterSliderTooltip widgetTooltip = widget.tooltip ?? FlutterSliderTooltip();
 
     _tooltipData = FlutterSliderTooltip();
-    _tooltipData.boxStyle = widgetTooltip.boxStyle ??
-        FlutterSliderTooltipBox(
-            decoration: BoxDecoration(
-                border: Border.all(color: Colors.black12, width: 0.5),
-                color: const Color(0xffffffff)));
-    _tooltipData.textStyle = widgetTooltip.textStyle ??
-        const TextStyle(fontSize: 12, color: Colors.black38);
+    _tooltipData.boxStyle = widgetTooltip.boxStyle ?? FlutterSliderTooltipBox(decoration: BoxDecoration(border: Border.all(color: Colors.black12, width: 0.5), color: const Color(0xffffffff)));
+    _tooltipData.textStyle = widgetTooltip.textStyle ?? const TextStyle(fontSize: 12, color: Colors.black38);
     _tooltipData.leftPrefix = widgetTooltip.leftPrefix;
     _tooltipData.leftSuffix = widgetTooltip.leftSuffix;
     _tooltipData.rightPrefix = widgetTooltip.rightPrefix;
     _tooltipData.rightSuffix = widgetTooltip.rightSuffix;
-    _tooltipData.alwaysShowTooltip = widgetTooltip.alwaysShowTooltip;
-    _tooltipData.disabled = widgetTooltip.disabled;
-    _tooltipData.disableAnimation = widgetTooltip.disableAnimation;
-    _tooltipData.direction = widgetTooltip.direction;
+    _tooltipData.alwaysShowTooltip = widgetTooltip.alwaysShowTooltip ?? false;
+    _tooltipData.disabled = widgetTooltip.disabled ?? false;
+    _tooltipData.disableAnimation = widgetTooltip.disableAnimation ?? false;
+    _tooltipData.direction = widgetTooltip.direction ?? FlutterSliderTooltipDirection.top;
     _tooltipData.positionOffset = widgetTooltip.positionOffset;
     _tooltipData.format = widgetTooltip.format;
     _tooltipData.custom = widgetTooltip.custom;
@@ -856,22 +907,12 @@ class FlutterSliderState extends State<FlutterSlider>
 
   void _generateHandler() {
     /*Right Handler Data*/
-    FlutterSliderHandler inputRightHandler =
-        widget.rightHandler ?? FlutterSliderHandler();
-    inputRightHandler.child ??= Icon(
-        (widget.axis == Axis.horizontal)
-            ? Icons.chevron_left
-            : Icons.expand_less,
-        color: Colors.black45);
-    inputRightHandler.decoration ??= const BoxDecoration(boxShadow: [
-      BoxShadow(
-          color: Colors.black26,
-          blurRadius: 2,
-          spreadRadius: 0.2,
-          offset: Offset(0, 1))
-    ], color: Colors.white, shape: BoxShape.circle);
+    FlutterSliderHandler inputRightHandler = widget.rightHandler ?? FlutterSliderHandler();
+    inputRightHandler.child ??= Icon((widget.axis == Axis.horizontal) ? Icons.chevron_left : Icons.expand_less, color: Colors.black45);
+    inputRightHandler.decoration ??=
+        const BoxDecoration(boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 2, spreadRadius: 0.2, offset: Offset(0, 1))], color: Colors.white, shape: BoxShape.circle);
 
-    rightHandler = _MakeHandler(
+    rightHandler = MakeHandler(
         animation: _rightHandlerScaleAnimation,
         id: rightHandlerKey,
         visibleTouchArea: widget.visibleTouchArea,
@@ -882,7 +923,7 @@ class FlutterSliderState extends State<FlutterSlider>
         handlerIndex: 2,
         touchSize: _touchSize);
 
-    leftHandler = _MakeHandler(
+    leftHandler = MakeHandler(
         animation: _leftHandlerScaleAnimation,
         id: leftHandlerKey,
         visibleTouchArea: widget.visibleTouchArea,
@@ -901,19 +942,15 @@ class FlutterSliderState extends State<FlutterSlider>
 
   double getPositionByValue(value) {
     if (widget.axis == Axis.horizontal) {
-      return (((_constraintMaxWidth - _handlersWidth!) / _realMax!) * value) -
-          _touchSize!;
+      return (((_constraintMaxWidth - _handlersWidth!) / _realMax!) * value) - _touchSize!;
     } else {
-      return (((_constraintMaxHeight - _handlersHeight!) / _realMax!) * value) -
-          _touchSize!;
+      return (((_constraintMaxHeight - _handlersHeight!) / _realMax!) * value) - _touchSize!;
     }
   }
 
   double getValueByPosition(double position) {
-    double value = ((position / (__containerSizeWithoutPadding! / _divisions)) *
-        _widgetStep!);
-    value = (double.parse(value.toStringAsFixed(_decimalScale)) -
-        double.parse((value % _widgetStep!).toStringAsFixed(_decimalScale)));
+    double value = ((position / (__containerSizeWithoutPadding! / _divisions)) * _widgetStep!);
+    value = (double.parse(value.toStringAsFixed(_decimalScale)) - double.parse((value % _widgetStep!).toStringAsFixed(_decimalScale)));
     return value;
   }
 
@@ -922,17 +959,12 @@ class FlutterSliderState extends State<FlutterSlider>
   }
 
   double getValueByPositionIgnoreOffset(double position) {
-    double value = ((position / (__containerSizeWithoutPadding! / _divisions)) *
-        _widgetStep!);
+    double value = ((position / (__containerSizeWithoutPadding! / _divisions)) * _widgetStep!);
     return value;
   }
 
-  void _leftHandlerMove(PointerEvent pointer,
-      {double lockedHandlersDragOffset = 0,
-      double tappedPositionWithPadding = 0,
-      bool selectedByTap = false}) {
-    if (widget.disabled ||
-        (widget.handler != null && widget.handler!.disabled)) {
+  void _leftHandlerMove(PointerEvent pointer, {double lockedHandlersDragOffset = 0, double tappedPositionWithPadding = 0, bool selectedByTap = false}) {
+    if (widget.disabled || (widget.handler != null && widget.handler!.disabled)) {
       return;
     }
 
@@ -949,19 +981,13 @@ class FlutterSliderState extends State<FlutterSlider>
     bool validMove = true;
 
     if (widget.axis == Axis.horizontal) {
-      __dAxis = pointer.position.dx -
-          tappedPositionWithPadding -
-          lockedHandlersDragOffset -
-          _containerLeft;
+      __dAxis = pointer.position.dx - tappedPositionWithPadding - lockedHandlersDragOffset - _containerLeft;
       __axisDragTmp = xDragTmp;
       __containerSizeWithoutPadding = _containerWidthWithoutPadding;
       __rightHandlerPosition = _rightHandlerXPosition;
       __leftHandlerPosition = _leftHandlerXPosition;
     } else {
-      __dAxis = pointer.position.dy -
-          tappedPositionWithPadding -
-          lockedHandlersDragOffset -
-          _containerTop;
+      __dAxis = pointer.position.dy - tappedPositionWithPadding - lockedHandlersDragOffset - _containerTop;
       __axisDragTmp = yDragTmp;
       __containerSizeWithoutPadding = _containerHeightWithoutPadding;
       __rightHandlerPosition = _rightHandlerYPosition;
@@ -974,23 +1000,15 @@ class FlutterSliderState extends State<FlutterSlider>
 
     __rAxis = getValueByPosition(__axisPosTmp!);
 
-    if (widget.rangeSlider &&
-        widget.minimumDistance > 0 &&
-        (__rAxis! + widget.minimumDistance) >= _upperValue!) {
-      _lowerValue = (_upperValue! - widget.minimumDistance > _realMin!)
-          ? _upperValue! - widget.minimumDistance
-          : _realMin;
+    if (widget.rangeSlider && widget.minimumDistance > 0 && (__rAxis! + widget.minimumDistance) >= _upperValue!) {
+      _lowerValue = (_upperValue! - widget.minimumDistance > _realMin!) ? _upperValue! - widget.minimumDistance : _realMin;
       _updateLowerValue(_lowerValue);
 
       if (lockedHandlersDragOffset == 0) validMove = validMove & false;
     }
 
-    if (widget.rangeSlider &&
-        widget.maximumDistance > 0 &&
-        __rAxis! <= (_upperValue! - widget.maximumDistance)) {
-      _lowerValue = (_upperValue! - widget.maximumDistance > _realMin!)
-          ? _upperValue! - widget.maximumDistance
-          : _realMin;
+    if (widget.rangeSlider && widget.maximumDistance > 0 && __rAxis! <= (_upperValue! - widget.maximumDistance)) {
+      _lowerValue = (_upperValue! - widget.maximumDistance > _realMin!) ? _upperValue! - widget.maximumDistance : _realMin;
       _updateLowerValue(_lowerValue);
 
       if (lockedHandlersDragOffset == 0) validMove = validMove & false;
@@ -1004,14 +1022,11 @@ class FlutterSliderState extends State<FlutterSlider>
     validMove = validMove & _leftHandlerIgnoreSteps(tS);
 
     bool forcePosStop = false;
-    if (((__axisPosTmp! <= 0) ||
-        (__axisPosTmp! - tS! >= __rightHandlerPosition!))) {
+    if (((__axisPosTmp! <= 0) || (__axisPosTmp! - tS! >= __rightHandlerPosition!))) {
       forcePosStop = true;
     }
 
-    if (validMove &&
-        ((__axisPosTmp! + _handlersPadding >= _handlersPadding) ||
-            forcePosStop)) {
+    if (validMove && ((__axisPosTmp! + _handlersPadding >= _handlersPadding) || forcePosStop)) {
       double tmpLowerValue = __rAxis!;
 
       if (tmpLowerValue > _realMax!) tmpLowerValue = _realMax!;
@@ -1022,8 +1037,7 @@ class FlutterSliderState extends State<FlutterSlider>
       if (widget.jump == true) {
         if (!forcePosStop) {
           _lowerValue = tmpLowerValue;
-          _leftHandlerMoveBetweenSteps(
-              __dAxis! - __axisDragTmp!, selectedByTap);
+          _leftHandlerMoveBetweenSteps(__dAxis! - __axisDragTmp!, selectedByTap);
           __leftHandlerPosition = getPositionByValue(_lowerValue);
         } else {
           if (__axisPosTmp! - tS! >= __rightHandlerPosition!) {
@@ -1097,16 +1111,10 @@ class FlutterSliderState extends State<FlutterSlider>
       }
 
       for (FlutterSliderIgnoreSteps steps in _ignoreSteps) {
-        if (((!widget.rtl) &&
-                (getValueByPositionIgnoreOffset(__axisPosTmp!) >
-                        steps.from! - _widgetStep! / 2 &&
-                    getValueByPositionIgnoreOffset(__axisPosTmp!) <=
-                        steps.to! + _widgetStep! / 2)) ||
+        if (((!widget.rtl) && (getValueByPositionIgnoreOffset(__axisPosTmp!) > steps.from! - _widgetStep! / 2 && getValueByPositionIgnoreOffset(__axisPosTmp!) <= steps.to! + _widgetStep! / 2)) ||
             ((widget.rtl) &&
-                (_realMax! - getValueByPositionIgnoreOffset(__axisPosTmp!) >
-                        steps.from! - _widgetStep! / 2 &&
-                    _realMax! - getValueByPositionIgnoreOffset(__axisPosTmp!) <=
-                        steps.to! + _widgetStep! / 2))) validMove = false;
+                (_realMax! - getValueByPositionIgnoreOffset(__axisPosTmp!) > steps.from! - _widgetStep! / 2 &&
+                    _realMax! - getValueByPositionIgnoreOffset(__axisPosTmp!) <= steps.to! + _widgetStep! / 2))) validMove = false;
       }
     }
 
@@ -1114,10 +1122,8 @@ class FlutterSliderState extends State<FlutterSlider>
   }
 
   void _leftHandlerMoveBetweenSteps(handlerPos, bool selectedByTap) {
-    double nextStepMiddlePos =
-        getPositionByValue((_lowerValue! + (_lowerValue! + _widgetStep!)) / 2);
-    double prevStepMiddlePos =
-        getPositionByValue((_lowerValue! - (_lowerValue! - _widgetStep!)) / 2);
+    double nextStepMiddlePos = getPositionByValue((_lowerValue! + (_lowerValue! + _widgetStep!)) / 2);
+    double prevStepMiddlePos = getPositionByValue((_lowerValue! - (_lowerValue! - _widgetStep!)) / 2);
 
     if (handlerPos > nextStepMiddlePos || handlerPos < prevStepMiddlePos) {
       if (handlerPos > nextStepMiddlePos) {
@@ -1147,8 +1153,7 @@ class FlutterSliderState extends State<FlutterSlider>
     if (handler == 'rightHandler') {
       _lowerValue = _upperValue! - _handlersDistance;
       leftHandlerPos = rightHandlerPos! - distanceOfTwoHandlers!;
-      if (getValueByPositionIgnoreOffset(__axisPosTmp!) - _handlersDistance <
-          _realMin!) {
+      if (getValueByPositionIgnoreOffset(__axisPosTmp!) - _handlersDistance < _realMin!) {
         _lowerValue = _realMin;
         _upperValue = _realMin! + _handlersDistance;
         rightHandlerPos = getPositionByValue(_upperValue);
@@ -1157,8 +1162,7 @@ class FlutterSliderState extends State<FlutterSlider>
     } else {
       _upperValue = _lowerValue! + _handlersDistance;
       rightHandlerPos = leftHandlerPos! + distanceOfTwoHandlers!;
-      if (getValueByPositionIgnoreOffset(__axisPosTmp!) + _handlersDistance >
-          _realMax!) {
+      if (getValueByPositionIgnoreOffset(__axisPosTmp!) + _handlersDistance > _realMax!) {
         _upperValue = _realMax;
         _lowerValue = _realMax! - _handlersDistance;
         rightHandlerPos = getPositionByValue(_upperValue);
@@ -1185,10 +1189,8 @@ class FlutterSliderState extends State<FlutterSlider>
     }
   }
 
-  void _rightHandlerMove(PointerEvent pointer,
-      {double tappedPositionWithPadding = 0, bool selectedByTap = false}) {
-    if (widget.disabled ||
-        (widget.rightHandler != null && widget.rightHandler!.disabled)) return;
+  void _rightHandlerMove(PointerEvent pointer, {double tappedPositionWithPadding = 0, bool selectedByTap = false}) {
+    if (widget.disabled || (widget.rightHandler != null && widget.rightHandler!.disabled)) return;
 
     _handlersDistance = widget.lockDistance ?? _upperValue! - _lowerValue!;
 
@@ -1199,22 +1201,19 @@ class FlutterSliderState extends State<FlutterSlider>
     bool validMove = true;
 
     if (widget.axis == Axis.horizontal) {
-      __dAxis =
-          pointer.position.dx - tappedPositionWithPadding - _containerLeft;
+      __dAxis = pointer.position.dx - tappedPositionWithPadding - _containerLeft;
       __axisDragTmp = xDragTmp;
       __containerSizeWithoutPadding = _containerWidthWithoutPadding;
       __rightHandlerPosition = _rightHandlerXPosition;
       __leftHandlerPosition = _leftHandlerXPosition;
-      __containerSizeWithoutHalfPadding =
-          _constraintMaxWidth - _handlersPadding + 1;
+      __containerSizeWithoutHalfPadding = _constraintMaxWidth - _handlersPadding + 1;
     } else {
       __dAxis = pointer.position.dy - tappedPositionWithPadding - _containerTop;
       __axisDragTmp = yDragTmp;
       __containerSizeWithoutPadding = _containerHeightWithoutPadding;
       __rightHandlerPosition = _rightHandlerYPosition;
       __leftHandlerPosition = _leftHandlerYPosition;
-      __containerSizeWithoutHalfPadding =
-          _constraintMaxHeight - _handlersPadding + 1;
+      __containerSizeWithoutHalfPadding = _constraintMaxHeight - _handlersPadding + 1;
     }
 
     __axisPosTmp = __dAxis! - __axisDragTmp! + _touchSize!;
@@ -1223,21 +1222,13 @@ class FlutterSliderState extends State<FlutterSlider>
 
     __rAxis = getValueByPosition(__axisPosTmp!);
 
-    if (widget.rangeSlider &&
-        widget.minimumDistance > 0 &&
-        (__rAxis! - widget.minimumDistance) <= _lowerValue!) {
-      _upperValue = (_lowerValue! + widget.minimumDistance < _realMax!)
-          ? _lowerValue! + widget.minimumDistance
-          : _realMax;
+    if (widget.rangeSlider && widget.minimumDistance > 0 && (__rAxis! - widget.minimumDistance) <= _lowerValue!) {
+      _upperValue = (_lowerValue! + widget.minimumDistance < _realMax!) ? _lowerValue! + widget.minimumDistance : _realMax;
       validMove = validMove & false;
       _updateUpperValue(_upperValue);
     }
-    if (widget.rangeSlider &&
-        widget.maximumDistance > 0 &&
-        __rAxis! >= (_lowerValue! + widget.maximumDistance)) {
-      _upperValue = (_lowerValue! + widget.maximumDistance < _realMax!)
-          ? _lowerValue! + widget.maximumDistance
-          : _realMax;
+    if (widget.rangeSlider && widget.maximumDistance > 0 && __rAxis! >= (_lowerValue! + widget.maximumDistance)) {
+      _upperValue = (_lowerValue! + widget.maximumDistance < _realMax!) ? _lowerValue! + widget.maximumDistance : _realMax;
       validMove = validMove & false;
       _updateUpperValue(_upperValue);
     }
@@ -1252,14 +1243,11 @@ class FlutterSliderState extends State<FlutterSlider>
     validMove = validMove & _rightHandlerIgnoreSteps(tS);
 
     bool forcePosStop = false;
-    if (((__axisPosTmp! >= __containerSizeWithoutPadding!) ||
-        (__axisPosTmp! - tS! <= __leftHandlerPosition!))) {
+    if (((__axisPosTmp! >= __containerSizeWithoutPadding!) || (__axisPosTmp! - tS! <= __leftHandlerPosition!))) {
       forcePosStop = true;
     }
 
-    if (validMove &&
-        (__axisPosTmp! + rM <= __containerSizeWithoutHalfPadding! ||
-            forcePosStop)) {
+    if (validMove && (__axisPosTmp! + rM <= __containerSizeWithoutHalfPadding! || forcePosStop)) {
       double tmpUpperValue = __rAxis!;
 
       if (tmpUpperValue > _realMax!) tmpUpperValue = _realMax!;
@@ -1270,8 +1258,7 @@ class FlutterSliderState extends State<FlutterSlider>
       if (widget.jump == true) {
         if (!forcePosStop) {
           _upperValue = tmpUpperValue;
-          _rightHandlerMoveBetweenSteps(
-              __dAxis! - __axisDragTmp!, selectedByTap);
+          _rightHandlerMoveBetweenSteps(__dAxis! - __axisDragTmp!, selectedByTap);
           __rightHandlerPosition = getPositionByValue(_upperValue);
         } else {
           if (__axisPosTmp! - tS! <= __leftHandlerPosition!) {
@@ -1360,16 +1347,10 @@ class FlutterSliderState extends State<FlutterSlider>
       }
 
       for (FlutterSliderIgnoreSteps steps in _ignoreSteps) {
-        if (((!widget.rtl) &&
-                (getValueByPositionIgnoreOffset(__axisPosTmp!) >
-                        steps.from! - _widgetStep! / 2 &&
-                    getValueByPositionIgnoreOffset(__axisPosTmp!) <=
-                        steps.to! + _widgetStep! / 2)) ||
+        if (((!widget.rtl) && (getValueByPositionIgnoreOffset(__axisPosTmp!) > steps.from! - _widgetStep! / 2 && getValueByPositionIgnoreOffset(__axisPosTmp!) <= steps.to! + _widgetStep! / 2)) ||
             ((widget.rtl) &&
-                (_realMax! - getValueByPositionIgnoreOffset(__axisPosTmp!) >
-                        steps.from! - _widgetStep! / 2 &&
-                    _realMax! - getValueByPositionIgnoreOffset(__axisPosTmp!) <=
-                        steps.to! + _widgetStep! / 2))) validMove = false;
+                (_realMax! - getValueByPositionIgnoreOffset(__axisPosTmp!) > steps.from! - _widgetStep! / 2 &&
+                    _realMax! - getValueByPositionIgnoreOffset(__axisPosTmp!) <= steps.to! + _widgetStep! / 2))) validMove = false;
       }
     }
     return validMove;
@@ -1422,10 +1403,8 @@ class FlutterSliderState extends State<FlutterSlider>
   }
 
   void _rightHandlerMoveBetweenSteps(handlerPos, bool selectedByTap) {
-    double nextStepMiddlePos =
-        getPositionByValue((_upperValue! + (_upperValue! + _widgetStep!)) / 2);
-    double prevStepMiddlePos =
-        getPositionByValue((_upperValue! - (_upperValue! - _widgetStep!)) / 2);
+    double nextStepMiddlePos = getPositionByValue((_upperValue! + (_upperValue! + _widgetStep!)) / 2);
+    double prevStepMiddlePos = getPositionByValue((_upperValue! - (_upperValue! - _widgetStep!)) / 2);
 
     if (handlerPos > nextStepMiddlePos || handlerPos < prevStepMiddlePos) {
       if (handlerPos > nextStepMiddlePos) {
@@ -1495,13 +1474,8 @@ class FlutterSliderState extends State<FlutterSlider>
           feedback: Container(),
           child: Stack(
             clipBehavior: Clip.none,
-            alignment: Alignment.center,
             children: [
-              _tooltip(
-                  side: 'left',
-                  value: _outputLowerValue,
-                  opacity: _leftTooltipOpacity,
-                  animation: _leftTooltipAnimation),
+              _tooltip(side: 'left', value: _outputLowerValue, opacity: _leftTooltipOpacity, animation: _leftTooltipAnimation),
               leftHandler,
             ],
           ),
@@ -1512,16 +1486,14 @@ class FlutterSliderState extends State<FlutterSlider>
           _leftHandlerMove(_);
         },
         onPointerDown: (_) {
-          if (widget.disabled ||
-              (widget.handler != null && widget.handler!.disabled)) return;
+          if (widget.disabled || (widget.handler != null && widget.handler!.disabled)) return;
 
           _renderBoxInitialization();
 
           xDragTmp = (_.position.dx - _containerLeft - _leftHandlerXPosition!);
           yDragTmp = (_.position.dy - _containerTop - _leftHandlerYPosition!);
 
-          if (!_tooltipData.disabled &&
-              _tooltipData.alwaysShowTooltip == false) {
+          if (!_tooltipData.disabled! && _tooltipData.alwaysShowTooltip == false) {
             _leftTooltipOpacity = 1;
             _leftTooltipAnimationController.forward();
 
@@ -1542,14 +1514,11 @@ class FlutterSliderState extends State<FlutterSlider>
 
           _adjustLeftHandlerPosition();
 
-          if (widget.disabled ||
-              (widget.handler != null && widget.handler!.disabled)) return;
+          if (widget.disabled || (widget.handler != null && widget.handler!.disabled)) return;
 
           _arrangeHandlersZIndex();
 
-          _stopHandlerAnimation(
-              animation: _leftHandlerScaleAnimation,
-              controller: _leftHandlerScaleAnimationController);
+          _stopHandlerAnimation(animation: _leftHandlerScaleAnimation, controller: _leftHandlerScaleAnimationController);
 
           _hideTooltips();
 
@@ -1565,31 +1534,23 @@ class FlutterSliderState extends State<FlutterSlider>
     if (!widget.jump) {
       double position = getPositionByValue(_lowerValue);
       if (widget.axis == Axis.horizontal) {
-        _leftHandlerXPosition = position > _rightHandlerXPosition!
-            ? _rightHandlerXPosition
-            : position;
+        _leftHandlerXPosition = position > _rightHandlerXPosition! ? _rightHandlerXPosition : position;
         if (widget.lockHandlers || __lockedHandlersDragOffset > 0) {
           position = getPositionByValue(_lowerValue! + _handlersDistance);
-          _rightHandlerXPosition = position < _leftHandlerXPosition!
-              ? _leftHandlerXPosition
-              : position;
+          _rightHandlerXPosition = position < _leftHandlerXPosition! ? _leftHandlerXPosition : position;
         }
       } else {
-        _leftHandlerYPosition = position > _rightHandlerYPosition!
-            ? _rightHandlerYPosition
-            : position;
+        _leftHandlerYPosition = position > _rightHandlerYPosition! ? _rightHandlerYPosition : position;
         if (widget.lockHandlers || __lockedHandlersDragOffset > 0) {
           position = getPositionByValue(_lowerValue! + _handlersDistance);
-          _rightHandlerYPosition = position < _leftHandlerYPosition!
-              ? _leftHandlerYPosition
-              : position;
+          _rightHandlerYPosition = position < _leftHandlerYPosition! ? _leftHandlerYPosition : position;
         }
       }
     }
   }
 
   void _hideTooltips() {
-    if (!_tooltipData.alwaysShowTooltip) {
+    if (!_tooltipData.alwaysShowTooltip!) {
       _leftTooltipOpacity = 0;
       _rightTooltipOpacity = 0;
       _leftTooltipAnimationController.reset();
@@ -1618,13 +1579,8 @@ class FlutterSliderState extends State<FlutterSlider>
           feedback: Container(),
           child: Stack(
             clipBehavior: Clip.none,
-            alignment: Alignment.center,
             children: ([
-              _tooltip(
-                  side: 'right',
-                  value: _outputUpperValue,
-                  opacity: _rightTooltipOpacity,
-                  animation: _rightTooltipAnimation),
+              _tooltip(side: 'right', value: _outputUpperValue, opacity: _rightTooltipOpacity, animation: _rightTooltipAnimation),
               rightHandler,
             ]),
           ),
@@ -1632,15 +1588,13 @@ class FlutterSliderState extends State<FlutterSlider>
         onPointerMove: (_) {
           __dragging = true;
 
-          if (!_tooltipData.disabled &&
-              _tooltipData.alwaysShowTooltip == false) {
+          if (!_tooltipData.disabled! && _tooltipData.alwaysShowTooltip == false) {
             _rightTooltipOpacity = 1;
           }
           _rightHandlerMove(_);
         },
         onPointerDown: (_) {
-          if (widget.disabled ||
-              (widget.rightHandler != null && widget.rightHandler!.disabled)) {
+          if (widget.disabled || (widget.rightHandler != null && widget.rightHandler!.disabled)) {
             return;
           }
 
@@ -1649,8 +1603,7 @@ class FlutterSliderState extends State<FlutterSlider>
           xDragTmp = (_.position.dx - _containerLeft - _rightHandlerXPosition!);
           yDragTmp = (_.position.dy - _containerTop - _rightHandlerYPosition!);
 
-          if (!_tooltipData.disabled &&
-              _tooltipData.alwaysShowTooltip == false) {
+          if (!_tooltipData.disabled! && _tooltipData.alwaysShowTooltip == false) {
             _rightTooltipOpacity = 1;
             _rightTooltipAnimationController.forward();
 
@@ -1674,21 +1627,16 @@ class FlutterSliderState extends State<FlutterSlider>
 
           _adjustRightHandlerPosition();
 
-          if (widget.disabled ||
-              (widget.rightHandler != null && widget.rightHandler!.disabled)) {
+          if (widget.disabled || (widget.rightHandler != null && widget.rightHandler!.disabled)) {
             return;
           }
 
           _arrangeHandlersZIndex();
 
           if (widget.rangeSlider == false) {
-            _stopHandlerAnimation(
-                animation: _leftHandlerScaleAnimation,
-                controller: _leftHandlerScaleAnimationController);
+            _stopHandlerAnimation(animation: _leftHandlerScaleAnimation, controller: _leftHandlerScaleAnimationController);
           } else {
-            _stopHandlerAnimation(
-                animation: _rightHandlerScaleAnimation,
-                controller: _rightHandlerScaleAnimationController);
+            _stopHandlerAnimation(animation: _rightHandlerScaleAnimation, controller: _rightHandlerScaleAnimationController);
           }
 
           _hideTooltips();
@@ -1705,31 +1653,22 @@ class FlutterSliderState extends State<FlutterSlider>
     if (!widget.jump) {
       double position = getPositionByValue(_upperValue);
       if (widget.axis == Axis.horizontal) {
-        _rightHandlerXPosition = position < _leftHandlerXPosition!
-            ? _leftHandlerXPosition
-            : position;
+        _rightHandlerXPosition = position < _leftHandlerXPosition! ? _leftHandlerXPosition : position;
         if (widget.lockHandlers) {
           position = getPositionByValue(_upperValue! - _handlersDistance);
-          _leftHandlerXPosition = position > _rightHandlerXPosition!
-              ? _rightHandlerXPosition
-              : position;
+          _leftHandlerXPosition = position > _rightHandlerXPosition! ? _rightHandlerXPosition : position;
         }
       } else {
-        _rightHandlerYPosition = position < _leftHandlerYPosition!
-            ? _leftHandlerYPosition
-            : position;
+        _rightHandlerYPosition = position < _leftHandlerYPosition! ? _leftHandlerYPosition : position;
         if (widget.lockHandlers) {
           position = getPositionByValue(_upperValue! - _handlersDistance);
-          _leftHandlerYPosition = position > _rightHandlerYPosition!
-              ? _rightHandlerYPosition
-              : position;
+          _leftHandlerYPosition = position > _rightHandlerYPosition! ? _rightHandlerYPosition : position;
         }
       }
     }
   }
 
-  void _stopHandlerAnimation(
-      {Animation? animation, AnimationController? controller}) {
+  void _stopHandlerAnimation({Animation? animation, AnimationController? controller}) {
     if (widget.handlerAnimation.reverseCurve != null) {
       if (animation!.isCompleted) {
         controller!.reverse();
@@ -1742,16 +1681,13 @@ class FlutterSliderState extends State<FlutterSlider>
   }
 
   drawHandlers() {
-    List<Positioned> items = [
-      Function.apply(_inactiveTrack, []),
-      Function.apply(_centralWidget, []),
-      Function.apply(_activeTrack, [])
-    ];
+    List<Positioned> items = [Function.apply(_inactiveTrack, []), Function.apply(_centralWidget, []), Function.apply(_activeTrack, [])];
     items.addAll(_points);
 
     double tappedPositionWithPadding = 0;
 
-    items.add(Positioned(
+    items.add(
+      Positioned(
         left: 0,
         right: 0,
         top: 0,
@@ -1765,18 +1701,12 @@ class FlutterSliderState extends State<FlutterSlider>
                 tappedPositionWithPadding = _distance();
                 if (_distanceFromLeftHandler! < _distanceFromRightHandler!) {
                   if (!widget.rangeSlider) {
-                    _rightHandlerMove(_,
-                        tappedPositionWithPadding: tappedPositionWithPadding,
-                        selectedByTap: true);
+                    _rightHandlerMove(_, tappedPositionWithPadding: tappedPositionWithPadding, selectedByTap: true);
                   } else {
-                    _leftHandlerMove(_,
-                        tappedPositionWithPadding: tappedPositionWithPadding,
-                        selectedByTap: true);
+                    _leftHandlerMove(_, tappedPositionWithPadding: tappedPositionWithPadding, selectedByTap: true);
                   }
                 } else {
-                  _rightHandlerMove(_,
-                      tappedPositionWithPadding: tappedPositionWithPadding,
-                      selectedByTap: true);
+                  _rightHandlerMove(_, tappedPositionWithPadding: tappedPositionWithPadding, selectedByTap: true);
                 }
               } else {
                 if (_slidingByActiveTrackBar) {
@@ -1792,12 +1722,8 @@ class FlutterSliderState extends State<FlutterSlider>
 
               _hideTooltips();
 
-              _stopHandlerAnimation(
-                  animation: _leftHandlerScaleAnimation,
-                  controller: _leftHandlerScaleAnimationController);
-              _stopHandlerAnimation(
-                  animation: _rightHandlerScaleAnimation,
-                  controller: _rightHandlerScaleAnimationController);
+              _stopHandlerAnimation(animation: _leftHandlerScaleAnimation, controller: _leftHandlerScaleAnimationController);
+              _stopHandlerAnimation(animation: _rightHandlerScaleAnimation, controller: _rightHandlerScaleAnimationController);
 
               setState(() {});
             },
@@ -1806,40 +1732,33 @@ class FlutterSliderState extends State<FlutterSlider>
 
               if (_slidingByActiveTrackBar) {
                 _trackBarSlideCallDragStated(0);
-                _leftHandlerMove(_,
-                    lockedHandlersDragOffset: __lockedHandlersDragOffset);
+                _leftHandlerMove(_, lockedHandlersDragOffset: __lockedHandlersDragOffset);
               } else {
                 tappedPositionWithPadding = _distance();
 
                 if (widget.rangeSlider) {
                   if (_leftTapAndSlide) {
                     _trackBarSlideCallDragStated(0);
-                    if (!_tooltipData.disabled &&
-                        _tooltipData.alwaysShowTooltip == false) {
+                    if (!_tooltipData.disabled! && _tooltipData.alwaysShowTooltip == false) {
                       _leftTooltipOpacity = 1;
                       _leftTooltipAnimationController.forward();
                     }
-                    _leftHandlerMove(_,
-                        tappedPositionWithPadding: tappedPositionWithPadding);
+                    _leftHandlerMove(_, tappedPositionWithPadding: tappedPositionWithPadding);
                   } else {
                     _trackBarSlideCallDragStated(1);
-                    if (!_tooltipData.disabled &&
-                        _tooltipData.alwaysShowTooltip == false) {
+                    if (!_tooltipData.disabled! && _tooltipData.alwaysShowTooltip == false) {
                       _rightTooltipOpacity = 1;
                       _rightTooltipAnimationController.forward();
                     }
-                    _rightHandlerMove(_,
-                        tappedPositionWithPadding: tappedPositionWithPadding);
+                    _rightHandlerMove(_, tappedPositionWithPadding: tappedPositionWithPadding);
                   }
                 } else {
                   _trackBarSlideCallDragStated(1);
-                  if (!_tooltipData.disabled &&
-                      _tooltipData.alwaysShowTooltip == false) {
+                  if (!_tooltipData.disabled! && _tooltipData.alwaysShowTooltip == false) {
                     _rightTooltipOpacity = 1;
                     _rightTooltipAnimationController.forward();
                   }
-                  _rightHandlerMove(_,
-                      tappedPositionWithPadding: tappedPositionWithPadding);
+                  _rightHandlerMove(_, tappedPositionWithPadding: tappedPositionWithPadding);
                 }
               }
             },
@@ -1852,14 +1771,8 @@ class FlutterSliderState extends State<FlutterSlider>
 
               double leftHandlerLastPosition, rightHandlerLastPosition;
               if (widget.axis == Axis.horizontal) {
-                double lX = _leftHandlerXPosition! +
-                    _handlersPadding +
-                    _touchSize! +
-                    _containerLeft;
-                double rX = _rightHandlerXPosition! +
-                    _handlersPadding +
-                    _touchSize! +
-                    _containerLeft;
+                double lX = _leftHandlerXPosition! + _handlersPadding + _touchSize! + _containerLeft;
+                double rX = _rightHandlerXPosition! + _handlersPadding + _touchSize! + _containerLeft;
 
                 _distanceFromRightHandler = (rX - _.position.dx);
                 _distanceFromLeftHandler = (lX - _.position.dx);
@@ -1867,14 +1780,8 @@ class FlutterSliderState extends State<FlutterSlider>
                 leftHandlerLastPosition = lX;
                 rightHandlerLastPosition = rX;
               } else {
-                double lY = _leftHandlerYPosition! +
-                    _handlersPadding +
-                    _touchSize! +
-                    _containerTop;
-                double rY = _rightHandlerYPosition! +
-                    _handlersPadding +
-                    _touchSize! +
-                    _containerTop;
+                double lY = _leftHandlerYPosition! + _handlersPadding + _touchSize! + _containerTop;
+                double rY = _rightHandlerYPosition! + _handlersPadding + _touchSize! + _containerTop;
 
                 _distanceFromLeftHandler = (lY - _.position.dy);
                 _distanceFromRightHandler = (rY - _.position.dy);
@@ -1883,51 +1790,32 @@ class FlutterSliderState extends State<FlutterSlider>
                 rightHandlerLastPosition = rY;
               }
 
-              if (widget.rangeSlider &&
-                  widget.trackBar.activeTrackBarDraggable &&
-                  _ignoreSteps.isEmpty &&
-                  _distanceFromRightHandler! > 0 &&
-                  _distanceFromLeftHandler! < 0) {
+              if (widget.rangeSlider && widget.trackBar.activeTrackBarDraggable && _ignoreSteps.isEmpty && _distanceFromRightHandler! > 0 && _distanceFromLeftHandler! < 0) {
                 _slidingByActiveTrackBar = true;
               } else {
-                double thumbPosition = (widget.axis == Axis.vertical)
-                    ? _.position.dy
-                    : _.position.dx;
-                if (_distanceFromLeftHandler!.abs() <
-                        _distanceFromRightHandler!.abs() ||
-                    (_distanceFromLeftHandler == _distanceFromRightHandler &&
-                        thumbPosition < leftHandlerLastPosition)) {
+                double thumbPosition = (widget.axis == Axis.vertical) ? _.position.dy : _.position.dx;
+                if (_distanceFromLeftHandler!.abs() < _distanceFromRightHandler!.abs() || (_distanceFromLeftHandler == _distanceFromRightHandler && thumbPosition < leftHandlerLastPosition)) {
                   _leftTapAndSlide = true;
                 }
-                if (_distanceFromRightHandler!.abs() <
-                        _distanceFromLeftHandler!.abs() ||
-                    (_distanceFromLeftHandler == _distanceFromRightHandler &&
-                        thumbPosition < rightHandlerLastPosition)) {
+                if (_distanceFromRightHandler!.abs() < _distanceFromLeftHandler!.abs() || (_distanceFromLeftHandler == _distanceFromRightHandler && thumbPosition < rightHandlerLastPosition)) {
                   _rightTapAndSlide = true;
                 }
               }
 
               // if drag is within active area
-              if (_distanceFromRightHandler! > 0 &&
-                  _distanceFromLeftHandler! < 0) {
+              if (_distanceFromRightHandler! > 0 && _distanceFromLeftHandler! < 0) {
                 if (widget.axis == Axis.horizontal) {
                   xDragTmp = 0;
-                  __lockedHandlersDragOffset =
-                      (_leftHandlerXPosition! + _containerLeft - _.position.dx)
-                          .abs();
+                  __lockedHandlersDragOffset = (_leftHandlerXPosition! + _containerLeft - _.position.dx).abs();
                 } else {
                   yDragTmp = 0;
-                  __lockedHandlersDragOffset =
-                      (_leftHandlerYPosition! + _containerTop - _.position.dy)
-                          .abs();
+                  __lockedHandlersDragOffset = (_leftHandlerYPosition! + _containerTop - _.position.dy).abs();
                 }
               }
 //              }
 
               if (_ignoreSteps.isEmpty) {
-                if ((widget.lockHandlers || __lockedHandlersDragOffset > 0) &&
-                    !_tooltipData.disabled &&
-                    _tooltipData.alwaysShowTooltip == false) {
+                if ((widget.lockHandlers || __lockedHandlersDragOffset > 0) && !_tooltipData.disabled! && _tooltipData.alwaysShowTooltip == false) {
                   _leftTooltipOpacity = 1;
                   _leftTooltipAnimationController.forward();
                   _rightTooltipOpacity = 1;
@@ -1943,13 +1831,16 @@ class FlutterSliderState extends State<FlutterSlider>
               setState(() {});
             },
             child: Draggable(
-                axis: widget.axis,
-                feedback: Container(),
-                child: Container(
-                  color: Colors.transparent,
-                )),
+              axis: widget.axis,
+              feedback: Container(),
+              child: Container(
+                color: Colors.transparent,
+              ),
+            ),
           ),
-        )));
+        ),
+      ),
+    );
 
 //    items      ..addAll(_points);
 
@@ -1978,9 +1869,8 @@ class FlutterSliderState extends State<FlutterSlider>
     }
   }
 
-  Positioned _tooltip(
-      {String? side, dynamic value, double? opacity, Animation? animation}) {
-    if (_tooltipData.disabled || value == '') {
+  Positioned _tooltip({String? side, dynamic value, double? opacity, Animation? animation}) {
+    if (_tooltipData.disabled! || value == '') {
       return Positioned(
         child: Container(),
       );
@@ -2033,8 +1923,7 @@ class FlutterSliderState extends State<FlutterSlider>
                 : Container(
                     padding: const EdgeInsets.all(8),
                     decoration: _tooltipData.boxStyle!.decoration,
-                    foregroundDecoration:
-                        _tooltipData.boxStyle!.foregroundDecoration,
+                    foregroundDecoration: _tooltipData.boxStyle!.foregroundDecoration,
                     transform: _tooltipData.boxStyle!.transform,
                     child: tooltipHolderWidget,
                   ),
@@ -2047,12 +1936,18 @@ class FlutterSliderState extends State<FlutterSlider>
     switch (_tooltipData.direction) {
       case FlutterSliderTooltipDirection.top:
         top = 0;
+        left = 0;
+        right = 0;
         break;
       case FlutterSliderTooltipDirection.left:
         left = 0;
+        top = 0;
+        bottom = 0;
         break;
       case FlutterSliderTooltipDirection.right:
         right = 0;
+        top = 0;
+        bottom = 0;
         break;
       default:
         break;
@@ -2060,21 +1955,20 @@ class FlutterSliderState extends State<FlutterSlider>
 
     if (_tooltipData.positionOffset != null) {
       if (_tooltipData.positionOffset!.top != null) {
-        top = (top ?? 0) + _tooltipData.positionOffset!.top!;
+        top = top! + _tooltipData.positionOffset!.top!;
       }
       if (_tooltipData.positionOffset!.left != null) {
-        left = (left ?? 0) + _tooltipData.positionOffset!.left!;
+        left = left! + _tooltipData.positionOffset!.left!;
       }
       if (_tooltipData.positionOffset!.right != null) {
-        right = (right ?? 0) + _tooltipData.positionOffset!.right!;
+        right = right! + _tooltipData.positionOffset!.right!;
       }
       if (_tooltipData.positionOffset!.bottom != null) {
-        bottom = (bottom ?? 0) + _tooltipData.positionOffset!.bottom!;
+        bottom = bottom! + _tooltipData.positionOffset!.bottom!;
       }
     }
 
-    tooltipWidget = SlideTransition(
-        position: animation as Animation<Offset>, child: tooltipWidget);
+    tooltipWidget = SlideTransition(position: animation as Animation<Offset>, child: tooltipWidget);
 
     return Positioned(
       left: left,
@@ -2089,8 +1983,7 @@ class FlutterSliderState extends State<FlutterSlider>
   }
 
   Positioned _inactiveTrack() {
-    BoxDecoration boxDecoration =
-        widget.trackBar.inactiveTrackBar ?? const BoxDecoration();
+    BoxDecoration boxDecoration = widget.trackBar.inactiveTrackBar ?? const BoxDecoration();
 
     Color trackBarColor = boxDecoration.color ?? const Color(0x110000ff);
     if (widget.disabled) {
@@ -2124,22 +2017,26 @@ class FlutterSliderState extends State<FlutterSlider>
           height: height,
           width: width,
           decoration: BoxDecoration(
-              color: trackBarColor,
-              backgroundBlendMode: boxDecoration.backgroundBlendMode,
-              shape: boxDecoration.shape,
-              gradient: boxDecoration.gradient,
-              border: boxDecoration.border,
-              borderRadius: boxDecoration.borderRadius,
-              boxShadow: boxDecoration.boxShadow,
-              image: boxDecoration.image),
+            color: trackBarColor,
+            backgroundBlendMode: boxDecoration.backgroundBlendMode,
+            shape: boxDecoration.shape,
+            gradient: boxDecoration.gradient,
+            border: boxDecoration.border,
+            borderRadius: boxDecoration.borderRadius,
+            boxShadow: boxDecoration.boxShadow,
+            image: boxDecoration.image,
+          ),
         ),
       ),
     );
   }
 
+  /// This function is used to get the decoration of the trackbar.
+  /// If the user has not provided any decoration for the trackbar, we will use a default decoration.
+  /// The default decoration is defined in the trackbar class.
+  /// If the user has provided a decoration, we will use the decoration that the user has provided.
   Positioned _activeTrack() {
-    BoxDecoration boxDecoration =
-        widget.trackBar.activeTrackBar ?? const BoxDecoration();
+    BoxDecoration boxDecoration = widget.trackBar.activeTrackBar ?? const BoxDecoration();
 
     Color trackBarColor = boxDecoration.color ?? const Color(0xff2196F3);
     if (widget.disabled) {
@@ -2160,22 +2057,15 @@ class FlutterSliderState extends State<FlutterSlider>
         if (widget.rtl == true && widget.rangeSlider == false) {
           left = null;
           right = _handlersWidth! / 2;
-          width = _containerWidthWithoutPadding! -
-              _rightHandlerXPosition! -
-              _touchSize!;
+          width = _containerWidthWithoutPadding! - _rightHandlerXPosition! - _touchSize!;
         }
       } else {
-        if (_containerWidthWithoutPadding! / 2 - _touchSize! >
-            _rightHandlerXPosition!) {
-          width = _containerWidthWithoutPadding! / 2 -
-              _rightHandlerXPosition! -
-              _touchSize!;
+        if (_containerWidthWithoutPadding! / 2 - _touchSize! > _rightHandlerXPosition!) {
+          width = _containerWidthWithoutPadding! / 2 - _rightHandlerXPosition! - _touchSize!;
           left = _rightHandlerXPosition! + _handlersWidth! / 2 + _touchSize!;
         } else {
           left = _containerWidthWithoutPadding! / 2 + _handlersPadding;
-          width = _rightHandlerXPosition! +
-              _touchSize! -
-              _containerWidthWithoutPadding! / 2;
+          width = _rightHandlerXPosition! + _touchSize! - _containerWidthWithoutPadding! / 2;
         }
       }
     } else {
@@ -2188,22 +2078,15 @@ class FlutterSliderState extends State<FlutterSlider>
         if (widget.rtl == true && widget.rangeSlider == false) {
           top = null;
           bottom = _handlersHeight! / 2;
-          height = _containerHeightWithoutPadding! -
-              _rightHandlerYPosition! -
-              _touchSize!;
+          height = _containerHeightWithoutPadding! - _rightHandlerYPosition! - _touchSize!;
         }
       } else {
-        if (_containerHeightWithoutPadding! / 2 - _touchSize! >
-            _rightHandlerYPosition!) {
-          height = _containerHeightWithoutPadding! / 2 -
-              _rightHandlerYPosition! -
-              _touchSize!;
+        if (_containerHeightWithoutPadding! / 2 - _touchSize! > _rightHandlerYPosition!) {
+          height = _containerHeightWithoutPadding! / 2 - _rightHandlerYPosition! - _touchSize!;
           top = _rightHandlerYPosition! + _handlersHeight! / 2 + _touchSize!;
         } else {
           top = _containerHeightWithoutPadding! / 2 + _handlersPadding;
-          height = _rightHandlerYPosition! +
-              _touchSize! -
-              _containerHeightWithoutPadding! / 2;
+          height = _rightHandlerYPosition! + _touchSize! - _containerHeightWithoutPadding! / 2;
         }
       }
     }
@@ -2234,6 +2117,7 @@ class FlutterSliderState extends State<FlutterSlider>
     );
   }
 
+  /// Position the central widget at the center of the track bar.
   Positioned _centralWidget() {
     return Positioned(
       left: 0,
@@ -2244,6 +2128,8 @@ class FlutterSliderState extends State<FlutterSlider>
     );
   }
 
+  /// This function is used to call the callbacks
+  /// This function is called from the [handleDragStart], [handleDragUpdate], and [handleDragEnd] functions
   void _callbacks(String callbackName, int handlerIndex) {
     dynamic lowerValue = _outputLowerValue;
     dynamic upperValue = _outputUpperValue;
@@ -2271,6 +2157,9 @@ class FlutterSliderState extends State<FlutterSlider>
     }
   }
 
+  /// Returns the value that should be displayed on the slider.
+  /// If the slider has fixed values, the value should be one of those.
+  /// Otherwise, the value should be parsed to the correct decimal scale.
   dynamic _displayRealValue(double? value) {
     if (_fixedValues.isNotEmpty) {
       return _fixedValues[value!.toInt()].value;
@@ -2279,6 +2168,8 @@ class FlutterSliderState extends State<FlutterSlider>
     return double.parse((value! + _widgetMin!).toStringAsFixed(_decimalScale));
   }
 
+  /// This function arranges the z-index of the handlers, so that the lower value
+  /// handler is always in front of the higher value handler.
   void _arrangeHandlersZIndex() {
     if (_lowerValue! >= (_realMax! / 2)) {
       _positionedItems = [
@@ -2293,385 +2184,19 @@ class FlutterSliderState extends State<FlutterSlider>
     }
   }
 
+  /// This function calculates the position of the container in the screen.
+  /// It is called each time the screen is rendered.
+  /// The position is calculated by getting the size of the screen and
+  /// subtracting the size of the container, then dividing by two.
+  /// This will give you the position of the container in the center of the screen.
   void _renderBoxInitialization() {
-    if (_containerLeft <= 0 ||
-        (MediaQuery.of(context).size.width - _constraintMaxWidth) <=
-            _containerLeft) {
-      RenderBox containerRenderBox =
-          containerKey.currentContext!.findRenderObject() as RenderBox;
+    if (_containerLeft <= 0 || (MediaQuery.of(context).size.width - _constraintMaxWidth) <= _containerLeft) {
+      RenderBox containerRenderBox = containerKey.currentContext!.findRenderObject() as RenderBox;
       _containerLeft = containerRenderBox.localToGlobal(Offset.zero).dx;
     }
-    if (_containerTop <= 0 ||
-        (MediaQuery.of(context).size.height - _constraintMaxHeight) <=
-            _containerTop) {
-      RenderBox containerRenderBox =
-          containerKey.currentContext!.findRenderObject() as RenderBox;
+    if (_containerTop <= 0 || (MediaQuery.of(context).size.height - _constraintMaxHeight) <= _containerTop) {
+      RenderBox containerRenderBox = containerKey.currentContext!.findRenderObject() as RenderBox;
       _containerTop = containerRenderBox.localToGlobal(Offset.zero).dy;
     }
   }
 }
-
-class _MakeHandler extends StatelessWidget {
-  final double? width;
-  final double? height;
-  final GlobalKey? id;
-  final FlutterSliderHandler? handlerData;
-  final bool? visibleTouchArea;
-  final Animation? animation;
-  final Axis? axis;
-  final int? handlerIndex;
-  final bool rtl;
-  final bool rangeSlider;
-  final double? touchSize;
-
-  const _MakeHandler(
-      {this.id,
-      this.handlerData,
-      this.visibleTouchArea,
-      this.width,
-      this.height,
-      this.animation,
-      this.rtl = false,
-      this.rangeSlider = false,
-      this.axis,
-      this.handlerIndex,
-      this.touchSize});
-
-  @override
-  Widget build(BuildContext context) {
-    double touchOpacity = (visibleTouchArea == true) ? 1 : 0;
-
-    double localWidth, localHeight;
-    localHeight = height! + (touchSize! * 2);
-    localWidth = width! + (touchSize! * 2);
-
-    FlutterSliderHandler handler = handlerData ?? FlutterSliderHandler();
-
-    if (handlerIndex == 2) {
-      handler.child ??= Icon(
-          (axis == Axis.horizontal) ? Icons.chevron_left : Icons.expand_less,
-          color: Colors.black45);
-    } else {
-      IconData hIcon =
-          (axis == Axis.horizontal) ? Icons.chevron_right : Icons.expand_more;
-      if (rtl && !rangeSlider) {
-        hIcon =
-            (axis == Axis.horizontal) ? Icons.chevron_left : Icons.expand_less;
-      }
-      handler.child ??= Icon(hIcon, color: Colors.black45);
-    }
-
-    handler.decoration ??= const BoxDecoration(boxShadow: [
-      BoxShadow(
-          color: Colors.black26,
-          blurRadius: 2,
-          spreadRadius: 0.2,
-          offset: Offset(0, 1))
-    ], color: Colors.white, shape: BoxShape.circle);
-
-    return Center(
-      child: SizedBox(
-        key: id,
-        width: localWidth,
-        height: localHeight,
-        child: Stack(children: <Widget>[
-          Opacity(
-            opacity: touchOpacity,
-            child: Container(
-              color: Colors.black12,
-              child: Container(),
-            ),
-          ),
-          Center(
-            child: ScaleTransition(
-              scale: animation as Animation<double>,
-              child: Opacity(
-                opacity: handler.opacity,
-                child: Container(
-                  alignment: Alignment.center,
-                  foregroundDecoration: handler.foregroundDecoration,
-                  decoration: handler.decoration,
-                  transform: handler.transform,
-                  width: width,
-                  height: height,
-                  child: handler.child,
-                ),
-              ),
-            ),
-          )
-        ]),
-      ),
-    );
-  }
-}
-
-class FlutterSliderHandler {
-  BoxDecoration? decoration;
-  BoxDecoration? foregroundDecoration;
-  Matrix4? transform;
-  Widget? child;
-  bool disabled;
-  double opacity;
-
-  FlutterSliderHandler(
-      {this.child,
-      this.decoration,
-      this.foregroundDecoration,
-      this.transform,
-      this.disabled = false,
-      this.opacity = 1});
-
-  @override
-  String toString() {
-    return '$child-$disabled-$decoration-$foregroundDecoration-$transform-$opacity';
-  }
-}
-
-class FlutterSliderTooltip {
-  Widget Function(dynamic value)? custom;
-  String Function(String value)? format;
-  TextStyle? textStyle;
-  FlutterSliderTooltipBox? boxStyle;
-  Widget? leftPrefix;
-  Widget? leftSuffix;
-  Widget? rightPrefix;
-  Widget? rightSuffix;
-  bool alwaysShowTooltip;
-  bool disabled;
-  bool disableAnimation;
-  FlutterSliderTooltipDirection direction;
-  FlutterSliderTooltipPositionOffset? positionOffset;
-
-  FlutterSliderTooltip({
-    this.custom,
-    this.format,
-    this.textStyle,
-    this.boxStyle,
-    this.leftPrefix,
-    this.leftSuffix,
-    this.rightPrefix,
-    this.rightSuffix,
-    this.alwaysShowTooltip = false,
-    this.disableAnimation = false,
-    this.disabled = false,
-    this.direction = FlutterSliderTooltipDirection.top,
-    this.positionOffset,
-  });
-
-  @override
-  String toString() {
-    return '$textStyle-$boxStyle-$leftPrefix-$leftSuffix-$rightPrefix-$rightSuffix-$alwaysShowTooltip-$disabled-$disableAnimation-$direction-$positionOffset';
-  }
-}
-
-class FlutterSliderTooltipPositionOffset {
-  double? top;
-  double? left;
-  double? right;
-  double? bottom;
-
-  FlutterSliderTooltipPositionOffset(
-      {this.top, this.left, this.right, this.bottom});
-
-  @override
-  String toString() {
-    return '$top-$left-$bottom-$right';
-  }
-}
-
-class FlutterSliderTooltipBox {
-  final BoxDecoration? decoration;
-  final BoxDecoration? foregroundDecoration;
-  final Matrix4? transform;
-
-  const FlutterSliderTooltipBox(
-      {this.decoration, this.foregroundDecoration, this.transform});
-
-  @override
-  String toString() {
-    return '$decoration-$foregroundDecoration-$transform';
-  }
-}
-
-class FlutterSliderTrackBar {
-  final BoxDecoration? inactiveTrackBar;
-  final BoxDecoration? activeTrackBar;
-  final Color activeDisabledTrackBarColor;
-  final Color inactiveDisabledTrackBarColor;
-  final double activeTrackBarHeight;
-  final double inactiveTrackBarHeight;
-  final Widget? centralWidget;
-  final bool activeTrackBarDraggable;
-
-  const FlutterSliderTrackBar({
-    this.inactiveTrackBar,
-    this.activeTrackBar,
-    this.activeDisabledTrackBarColor = const Color(0xffb5b5b5),
-    this.inactiveDisabledTrackBarColor = const Color(0xffe5e5e5),
-    this.activeTrackBarHeight = 3.5,
-    this.inactiveTrackBarHeight = 3,
-    this.centralWidget,
-    this.activeTrackBarDraggable = true,
-  }) : assert(activeTrackBarHeight > 0 && inactiveTrackBarHeight > 0);
-
-  @override
-  String toString() {
-    return '$inactiveTrackBar-$activeTrackBar-$activeDisabledTrackBarColor-$inactiveDisabledTrackBarColor-$activeTrackBarHeight-$inactiveTrackBarHeight-$centralWidget';
-  }
-}
-
-class FlutterSliderIgnoreSteps {
-  final double? from;
-  final double? to;
-
-  FlutterSliderIgnoreSteps({this.from, this.to})
-      : assert(from != null && to != null && from <= to);
-
-  @override
-  String toString() {
-    return '$from-$to';
-  }
-}
-
-class FlutterSliderFixedValue {
-  final int? percent;
-  final dynamic value;
-
-  FlutterSliderFixedValue({this.percent, this.value})
-      : assert(
-            percent != null && value != null && percent >= 0 && percent <= 100);
-
-  @override
-  String toString() {
-    return '$percent-$value';
-  }
-}
-
-class FlutterSliderHandlerAnimation {
-  final Curve curve;
-  final Curve? reverseCurve;
-  final Duration duration;
-  final double scale;
-
-  const FlutterSliderHandlerAnimation(
-      {this.curve = Curves.elasticOut,
-      this.reverseCurve,
-      this.duration = const Duration(milliseconds: 700),
-      this.scale = 1.3});
-
-  @override
-  String toString() {
-    return '$curve-$reverseCurve-$duration-$scale';
-  }
-}
-
-class FlutterSliderHatchMark {
-  bool disabled;
-  double density;
-  double? linesDistanceFromTrackBar;
-  double? labelsDistanceFromTrackBar;
-  List<FlutterSliderHatchMarkLabel>? labels;
-  FlutterSliderSizedBox? smallLine;
-  FlutterSliderSizedBox? bigLine;
-
-  /// How many small lines to display between two big lines
-  int smallDensity;
-  FlutterSliderSizedBox? labelBox;
-  FlutterSliderHatchMarkAlignment linesAlignment;
-  bool? displayLines;
-
-  FlutterSliderHatchMark(
-      {this.disabled = false,
-      this.density = 1,
-      this.smallDensity = 4,
-      this.linesDistanceFromTrackBar,
-      this.labelsDistanceFromTrackBar,
-      this.labels,
-      this.smallLine,
-      this.bigLine,
-      this.linesAlignment = FlutterSliderHatchMarkAlignment.right,
-      this.labelBox,
-      this.displayLines})
-      : assert(density > 0 && density <= 2),
-        assert(smallDensity >= 0);
-
-  @override
-  String toString() {
-    return '$disabled-$density-$linesDistanceFromTrackBar-$labelsDistanceFromTrackBar-$labels-$smallLine-$bigLine-$labelBox-$linesAlignment-$displayLines';
-  }
-}
-
-class FlutterSliderHatchMarkLabel {
-  final double? percent;
-  final Widget? label;
-
-  FlutterSliderHatchMarkLabel({
-    this.percent,
-    this.label,
-  }) : assert((label == null && percent == null) ||
-            (label != null && percent != null && percent >= 0));
-
-  @override
-  String toString() {
-    return '$percent-$label';
-  }
-}
-
-class FlutterSliderSizedBox {
-  final BoxDecoration? decoration;
-  final BoxDecoration? foregroundDecoration;
-  final Matrix4? transform;
-  final double width;
-  final double height;
-
-  const FlutterSliderSizedBox(
-      {this.decoration,
-      this.foregroundDecoration,
-      this.transform,
-      required this.height,
-      required this.width})
-      : assert(width > 0 && height > 0);
-
-  @override
-  String toString() {
-    return '$width-$height-$decoration-$foregroundDecoration-$transform';
-  }
-}
-
-class FlutterSliderStep {
-  final double step;
-  final bool isPercentRange;
-  final List<FlutterSliderRangeStep>? rangeList;
-
-  const FlutterSliderStep({
-    this.step = 1,
-    this.isPercentRange = true,
-    this.rangeList,
-  });
-
-  @override
-  String toString() {
-    return '$step-$isPercentRange-$rangeList';
-  }
-}
-
-class FlutterSliderRangeStep {
-  final double? from;
-  final double? to;
-  final double? step;
-
-  FlutterSliderRangeStep({
-    this.from,
-    this.to,
-    this.step,
-  }) : assert(from != null && to != null && step != null);
-
-  @override
-  String toString() {
-    return '$from-$to-$step';
-  }
-}
-
-enum FlutterSliderTooltipDirection { top, left, right }
-
-enum FlutterSliderHatchMarkAlignment { left, right }
