@@ -1,5 +1,6 @@
 ## 3.0.0 - 21/03/2023
-* Includes an additional trackbar decorator made by @reducedcarpet - https://github.com/loonix/another_xlider/pull/11/
+Restructured the code to make it more readable, fixed documentation and flutter 3 requirements.
+Also separated classes and enums to its own files.
 
 ### BREAKING CHANGES
 * Refactored the classes and widgets to its own folders to have better readability of the core code
