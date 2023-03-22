@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 class FlutterSliderTrackBar {
   final BoxDecoration? inactiveTrackBar;
-  final BoxDecoration? inactiveRightTrackBar;
   final BoxDecoration? activeTrackBar;
   final Color activeDisabledTrackBarColor;
   final Color inactiveDisabledTrackBarColor;
@@ -14,7 +13,6 @@ class FlutterSliderTrackBar {
   const FlutterSliderTrackBar({
     this.inactiveTrackBar,
     this.activeTrackBar,
-    this.inactiveRightTrackBar,
     this.activeDisabledTrackBarColor = const Color(0xffb5b5b5),
     this.inactiveDisabledTrackBarColor = const Color(0xffe5e5e5),
     this.activeTrackBarHeight = 3.5,

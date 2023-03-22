@@ -498,7 +498,7 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
     }
 
     Offset animationStart = const Offset(0, 0);
-    if (widget.tooltip != null && widget.tooltip!.disableAnimation != null && widget.tooltip!.disableAnimation!) {
+    if (widget.tooltip?.disableAnimation == true) {
       animationStart = const Offset(0, -1);
     }
 
@@ -1681,7 +1681,7 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
   }
 
   drawHandlers() {
-    List<Positioned> items = [Function.apply(_inactiveTrack, []), Function.apply(_centralWidget, []), Function.apply(_activeTrack, []), Function.apply(_inactiveRightTrack, [])];
+    List<Positioned> items = [Function.apply(_inactiveTrack, []), Function.apply(_centralWidget, []), Function.apply(_activeTrack, [])];
     items.addAll(_points);
 
     double tappedPositionWithPadding = 0;
@@ -1914,24 +1914,23 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
     }
 
     Widget tooltipWidget = IgnorePointer(
-        child: Center(
-      child: FittedBox(
-        child: Container(
-//            height: ,
-//          height: __tooltipKEY.currentContext.size.height,
-          key: (side == 'left') ? leftTooltipKey : rightTooltipKey,
-//            alignment: Alignment.center,
-          child: (widget.tooltip != null && widget.tooltip!.custom != null)
-              ? widget.tooltip!.custom!(value)
-              : Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: _tooltipData.boxStyle!.decoration,
-                  foregroundDecoration: _tooltipData.boxStyle!.foregroundDecoration,
-                  transform: _tooltipData.boxStyle!.transform,
-                  child: tooltipHolderWidget),
+      child: Center(
+        child: FittedBox(
+          child: Container(
+            key: (side == 'left') ? leftTooltipKey : rightTooltipKey,
+            child: (widget.tooltip != null && widget.tooltip!.custom != null)
+                ? widget.tooltip!.custom!(value)
+                : Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: _tooltipData.boxStyle!.decoration,
+                    foregroundDecoration: _tooltipData.boxStyle!.foregroundDecoration,
+                    transform: _tooltipData.boxStyle!.transform,
+                    child: tooltipHolderWidget,
+                  ),
+          ),
         ),
       ),
-    ));
+    );
 
     double? top, right, bottom, left;
     switch (_tooltipData.direction) {
@@ -2032,6 +2031,10 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
     );
   }
 
+  /// This function is used to get the decoration of the trackbar.
+  /// If the user has not provided any decoration for the trackbar, we will use a default decoration.
+  /// The default decoration is defined in the trackbar class.
+  /// If the user has provided a decoration, we will use the decoration that the user has provided.
   Positioned _activeTrack() {
     BoxDecoration boxDecoration = widget.trackBar.activeTrackBar ?? const BoxDecoration();
 
@@ -2114,64 +2117,7 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
     );
   }
 
-  Positioned _inactiveRightTrack() {
-    BoxDecoration boxDecoration = widget.trackBar.inactiveRightTrackBar ?? const BoxDecoration();
-
-    Color trackBarColor = boxDecoration.color ?? const Color(0x00000000);
-    if (widget.disabled) {
-      trackBarColor = widget.trackBar.inactiveDisabledTrackBarColor;
-    }
-
-    double? top, bottom, left, right, width, height;
-    top = left = width = height = 0;
-    right = bottom = null;
-
-    if (widget.axis == Axis.horizontal) {
-      bottom = 0;
-      height = widget.trackBar.activeTrackBarHeight;
-
-      if (widget.rangeSlider) {
-        width = _containerWidthWithoutPadding! - _rightHandlerXPosition!;
-        left = _rightHandlerXPosition! + _handlersWidth! / 2;
-      }
-    } else {
-      // vertical
-      right = 0;
-      width = widget.trackBar.activeTrackBarHeight;
-
-      if (widget.rangeSlider) {
-        height = _containerHeightWithoutPadding! - _rightHandlerYPosition!;
-        top = _rightHandlerYPosition! + _handlersHeight! / 2;
-      }
-    }
-
-    width = (width < 0) ? 0 : width;
-    height = (height < 0) ? 0 : height;
-
-    return Positioned(
-      left: left,
-      right: right,
-      top: top,
-      bottom: bottom,
-      child: Center(
-        child: Container(
-          height: height,
-          width: width,
-          decoration: BoxDecoration(
-            color: trackBarColor,
-            backgroundBlendMode: boxDecoration.backgroundBlendMode,
-            shape: boxDecoration.shape,
-            gradient: boxDecoration.gradient,
-            border: boxDecoration.border,
-            borderRadius: boxDecoration.borderRadius,
-            boxShadow: boxDecoration.boxShadow,
-            image: boxDecoration.image,
-          ),
-        ),
-      ),
-    );
-  }
-
+  /// Position the central widget at the center of the track bar.
   Positioned _centralWidget() {
     return Positioned(
       left: 0,
@@ -2182,6 +2128,8 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
     );
   }
 
+  /// This function is used to call the callbacks
+  /// This function is called from the [handleDragStart], [handleDragUpdate], and [handleDragEnd] functions
   void _callbacks(String callbackName, int handlerIndex) {
     dynamic lowerValue = _outputLowerValue;
     dynamic upperValue = _outputUpperValue;
@@ -2209,6 +2157,9 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
     }
   }
 
+  /// Returns the value that should be displayed on the slider.
+  /// If the slider has fixed values, the value should be one of those.
+  /// Otherwise, the value should be parsed to the correct decimal scale.
   dynamic _displayRealValue(double? value) {
     if (_fixedValues.isNotEmpty) {
       return _fixedValues[value!.toInt()].value;
@@ -2217,6 +2168,8 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
     return double.parse((value! + _widgetMin!).toStringAsFixed(_decimalScale));
   }
 
+  /// This function arranges the z-index of the handlers, so that the lower value
+  /// handler is always in front of the higher value handler.
   void _arrangeHandlersZIndex() {
     if (_lowerValue! >= (_realMax! / 2)) {
       _positionedItems = [
@@ -2231,6 +2184,11 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
     }
   }
 
+  /// This function calculates the position of the container in the screen.
+  /// It is called each time the screen is rendered.
+  /// The position is calculated by getting the size of the screen and
+  /// subtracting the size of the container, then dividing by two.
+  /// This will give you the position of the container in the center of the screen.
   void _renderBoxInitialization() {
     if (_containerLeft <= 0 || (MediaQuery.of(context).size.width - _constraintMaxWidth) <= _containerLeft) {
       RenderBox containerRenderBox = containerKey.currentContext!.findRenderObject() as RenderBox;
