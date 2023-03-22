@@ -1,5 +1,7 @@
 # another_xlider
 
+<img width="1382" alt="image" src="https://user-images.githubusercontent.com/3384277/227059813-8c55be26-5eda-4dc1-9b3d-28647ab677c7.png">
+
 (Flutter Slider) A material design slider and range slider, horizontal and vertical, with rtl support and lots of options and customizations for flutter
 
 
