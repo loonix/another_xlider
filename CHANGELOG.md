@@ -1,3 +1,9 @@
+## 3.0.1 - 29/03/2023
+- fix: selectByTap doesn't work by actual Android devices - thanks to @YasufumiMuranaka
+- kotlin_version is now '1.6.0'
+- compileSdkVersion requires version 31
+- replaced lint plugin and rules
+
 ## 3.0.0 - 21/03/2023
 Restructured the code to make it more readable, fixed documentation and flutter 3 requirements.
 Also separated classes and enums to its own files.

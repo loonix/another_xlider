@@ -37,7 +37,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   double _lowerValue = 50;
-  double _upperValue = 200;
 
   double _lv = 50.0;
   double _uv = 250.0;
