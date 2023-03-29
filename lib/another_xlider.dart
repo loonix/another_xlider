@@ -342,6 +342,9 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
   // Flag for whether trackBarSlideOnDragStarted() was called
   bool _trackBarSlideOnDragStartedCalled = false;
 
+  // Flags for selectByTap propery handring for Android actual devices
+  bool isPointerDown = false;
+
   @override
   void initState() {
     initMethod();
@@ -976,6 +979,8 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
 
     if (selectedByTap) {
       _callbacks('onDragStarted', 0);
+    } else if (!isPointerDown) {
+      return;
     }
 
     bool validMove = true;
@@ -1196,6 +1201,8 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
 
     if (selectedByTap) {
       _callbacks('onDragStarted', 1);
+    } else if (!isPointerDown) {
+      return;
     }
 
     bool validMove = true;
@@ -1487,7 +1494,7 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
         },
         onPointerDown: (_) {
           if (widget.disabled || (widget.handler != null && widget.handler!.disabled)) return;
-
+          isPointerDown = true;
           _renderBoxInitialization();
 
           xDragTmp = (_.position.dx - _containerLeft - _leftHandlerXPosition!);
@@ -1510,7 +1517,7 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
           _callbacks('onDragStarted', 0);
         },
         onPointerUp: (_) {
-          __dragging = false;
+          __dragging = isPointerDown = false;
 
           _adjustLeftHandlerPosition();
 
@@ -1597,7 +1604,7 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
           if (widget.disabled || (widget.rightHandler != null && widget.rightHandler!.disabled)) {
             return;
           }
-
+          isPointerDown = true;
           _renderBoxInitialization();
 
           xDragTmp = (_.position.dx - _containerLeft - _rightHandlerXPosition!);
@@ -1623,7 +1630,7 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
           _callbacks('onDragStarted', 1);
         },
         onPointerUp: (_) {
-          __dragging = false;
+          __dragging = isPointerDown = false;
 
           _adjustRightHandlerPosition();
 
