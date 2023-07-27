@@ -125,41 +125,46 @@ class FlutterSlider<T> extends StatefulWidget {
   /// The foreground decoration to apply to the slider.
   final BoxDecoration? foregroundDecoration;
 
-  FlutterSlider(
-      {Key? key,
-      this.min,
-      this.max,
-      required this.values,
-      this.fixedValues,
-      this.axis = Axis.horizontal,
-      this.handler,
-      this.rightHandler,
-      this.handlerHeight,
-      this.handlerWidth,
-      this.onDragStarted,
-      this.onDragCompleted,
-      this.onDragging,
-      this.rangeSlider = false,
-      this.rtl = false,
-      this.jump = false,
-      this.ignoreSteps = const [],
-      this.disabled = false,
-      this.touchSize,
-      this.visibleTouchArea = false,
-      this.minimumDistance = 0,
-      this.maximumDistance = 0,
-      this.tooltip,
-      this.trackBar = const FlutterSliderTrackBar(),
-      this.handlerAnimation = const FlutterSliderHandlerAnimation(),
-      this.selectByTap = true,
-      this.step = const FlutterSliderStep(),
-      this.hatchMark,
-      this.centeredOrigin = false,
-      this.lockHandlers = false,
-      this.lockDistance,
-      this.decoration,
-      this.foregroundDecoration})
-      : assert(touchSize == null || (touchSize >= 5 && touchSize <= 50)),
+  /// This factor is timesed by the height of the height of the slider. It must be greater than 0.
+  final double containerHeightFactor;
+
+  FlutterSlider({
+    Key? key,
+    this.min,
+    this.max,
+    required this.values,
+    this.fixedValues,
+    this.axis = Axis.horizontal,
+    this.handler,
+    this.rightHandler,
+    this.handlerHeight,
+    this.handlerWidth,
+    this.onDragStarted,
+    this.onDragCompleted,
+    this.onDragging,
+    this.rangeSlider = false,
+    this.rtl = false,
+    this.jump = false,
+    this.ignoreSteps = const [],
+    this.disabled = false,
+    this.touchSize,
+    this.visibleTouchArea = false,
+    this.minimumDistance = 0,
+    this.maximumDistance = 0,
+    this.tooltip,
+    this.trackBar = const FlutterSliderTrackBar(),
+    this.handlerAnimation = const FlutterSliderHandlerAnimation(),
+    this.selectByTap = true,
+    this.step = const FlutterSliderStep(),
+    this.hatchMark,
+    this.centeredOrigin = false,
+    this.lockHandlers = false,
+    this.lockDistance,
+    this.decoration,
+    this.foregroundDecoration,
+    this.containerHeightFactor = 2,
+  })  : assert(containerHeightFactor > 0, "containerHeightFactor should be greater than 0"),
+        assert(touchSize == null || (touchSize >= 5 && touchSize <= 50)),
         assert((ignoreSteps.isNotEmpty && step.rangeList == null) || (ignoreSteps.isEmpty)),
         assert((step.rangeList != null && minimumDistance == 0 && maximumDistance == 0) ||
             (minimumDistance > 0 && step.rangeList == null) ||
@@ -409,8 +414,9 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
             if (layoutHeight == double.infinity) {
               layoutHeight = 0;
             }
+
             _containerWidth = constraints.maxWidth;
-            _containerHeight = [(sliderProperSize! * 2), layoutHeight].reduce(max);
+            _containerHeight = [(sliderProperSize! * widget.containerHeightFactor), layoutHeight].reduce(max);
             __containerSizeWithoutPadding = _containerWidthWithoutPadding;
           }
 
