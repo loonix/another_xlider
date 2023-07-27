@@ -28,7 +28,7 @@ import 'package:another_xlider/widgets/sized_box.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
-class FlutterSlider<T> extends StatefulWidget {
+class FlutterSlider extends StatefulWidget {
   /// The axis on which the slider should be displayed. Can be either vertical or horizontal.
   final Axis axis;
 
@@ -45,13 +45,13 @@ class FlutterSlider<T> extends StatefulWidget {
   final FlutterSliderHandler? rightHandler;
 
   /// Callback function that is called when the user starts dragging one of the handlers.
-  final void Function(int handlerIndex, T lowerValue, T upperValue)? onDragStarted;
+  final Function(int handlerIndex, dynamic lowerValue, dynamic upperValue)? onDragStarted;
 
   /// Callback function that is called when the user stops dragging one of the handlers.
-  final void Function(int handlerIndex, T lowerValue, T upperValue)? onDragCompleted;
+  final Function(int handlerIndex, dynamic lowerValue, dynamic upperValue)? onDragCompleted;
 
   /// Callback function that is called while the user is dragging one of the handlers.
-  final void Function(int handlerIndex, T lowerValue, T upperValue)? onDragging;
+  final Function(int handlerIndex, dynamic lowerValue, dynamic upperValue)? onDragging;
 
   /// The minimum value that can be selected on the slider.
   final double? min;
@@ -414,7 +414,6 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
             if (layoutHeight == double.infinity) {
               layoutHeight = 0;
             }
-
             _containerWidth = constraints.maxWidth;
             _containerHeight = [(sliderProperSize! * widget.containerHeightFactor), layoutHeight].reduce(max);
             __containerSizeWithoutPadding = _containerWidthWithoutPadding;
@@ -443,7 +442,6 @@ class FlutterSliderState extends State<FlutterSlider> with TickerProviderStateMi
                 key: containerKey,
                 height: _containerHeight,
                 width: _containerWidth,
-                padding: EdgeInsets.zero,
                 foregroundDecoration: widget.foregroundDecoration,
                 decoration: widget.decoration,
                 child: Stack(

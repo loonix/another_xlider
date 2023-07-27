@@ -37,6 +37,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   double _lowerValue = 50;
+  double _upperValue = 200;
 
   double _lv = 50.0;
   double _uv = 250.0;
@@ -108,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-              child: FlutterSlider<double>(
+              child: FlutterSlider(
                 handlerWidth: 30,
                 rtl: rtl,
                 handlerHeight: 30,
@@ -155,7 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-                child: FlutterSlider<double>(
+                child: FlutterSlider(
               values: [_lv, _uv],
               rangeSlider: true,
               max: 500,
@@ -191,7 +192,7 @@ class _MyHomePageState extends State<MyHomePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-                child: FlutterSlider<double>(
+                child: FlutterSlider(
               values: [_lv1, _uv1],
               rangeSlider: true,
               ignoreSteps: [
@@ -260,7 +261,7 @@ class _MyHomePageState extends State<MyHomePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-                child: FlutterSlider<double>(
+                child: FlutterSlider(
               values: [_lv2, _uv2],
               rangeSlider: true,
               max: 25000,
@@ -318,7 +319,7 @@ class _MyHomePageState extends State<MyHomePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-                child: FlutterSlider<double>(
+                child: FlutterSlider(
               key: Key('3343'),
               values: [_lv3, _uv3],
               rangeSlider: true,
@@ -360,7 +361,7 @@ class _MyHomePageState extends State<MyHomePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-                child: FlutterSlider<double>(
+                child: FlutterSlider(
               key: Key('3343'),
               values: [_lv4, _uv4],
               touchSize: 50.0,
