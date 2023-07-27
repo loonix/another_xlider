@@ -82,7 +82,9 @@ class _MyHomePageState extends State<MyHomePage> {
         decoration: BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
-          boxShadow: [BoxShadow(color: Colors.blue.withOpacity(0.3), spreadRadius: 0.05, blurRadius: 5, offset: Offset(0, 1))],
+          boxShadow: [
+            BoxShadow(color: Colors.blue.withOpacity(0.3), spreadRadius: 0.05, blurRadius: 5, offset: Offset(0, 1))
+          ],
         ),
         child: Container(
           margin: EdgeInsets.all(5),
@@ -106,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-              child: FlutterSlider(
+              child: FlutterSlider<double>(
                 handlerWidth: 30,
                 rtl: rtl,
                 handlerHeight: 30,
@@ -153,7 +155,7 @@ class _MyHomePageState extends State<MyHomePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-                child: FlutterSlider(
+                child: FlutterSlider<double>(
               values: [_lv, _uv],
               rangeSlider: true,
               max: 500,
@@ -189,7 +191,7 @@ class _MyHomePageState extends State<MyHomePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-                child: FlutterSlider(
+                child: FlutterSlider<double>(
               values: [_lv1, _uv1],
               rangeSlider: true,
               ignoreSteps: [
@@ -258,7 +260,7 @@ class _MyHomePageState extends State<MyHomePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-                child: FlutterSlider(
+                child: FlutterSlider<double>(
               values: [_lv2, _uv2],
               rangeSlider: true,
               max: 25000,
@@ -316,7 +318,7 @@ class _MyHomePageState extends State<MyHomePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-                child: FlutterSlider(
+                child: FlutterSlider<double>(
               key: Key('3343'),
               values: [_lv3, _uv3],
               rangeSlider: true,
@@ -358,11 +360,12 @@ class _MyHomePageState extends State<MyHomePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-                child: FlutterSlider(
+                child: FlutterSlider<double>(
               key: Key('3343'),
               values: [_lv4, _uv4],
               touchSize: 50.0,
-              handlerAnimation: FlutterSliderHandlerAnimation(reverseCurve: Curves.bounceOut, curve: Curves.bounceIn, duration: Duration(milliseconds: 500), scale: 1.5),
+              handlerAnimation: FlutterSliderHandlerAnimation(
+                  reverseCurve: Curves.bounceOut, curve: Curves.bounceIn, duration: Duration(milliseconds: 500), scale: 1.5),
               rangeSlider: true,
               ignoreSteps: [
                 FlutterSliderIgnoreSteps(from: 500, to: 1000),
