@@ -1,3 +1,16 @@
+## 3.0.2 - 23/11/2023
+### What's Changed
+* Feature/adjust padding around slider by @ChrisElliotUK in https://github.com/loonix/another_xlider/pull/29
+* add typing by @ChrisElliotUK in https://github.com/loonix/another_xlider/pull/28
+* undo typing by @ChrisElliotUK in https://github.com/loonix/another_xlider/pull/30
+* Handle null animation or controller in _stopHandlerAnimation function by @john-paradym in https://github.com/loonix/another_xlider/pull/32
+
+### New Contributors
+* @ChrisElliotUK made their first contribution in https://github.com/loonix/another_xlider/pull/29
+* @john-paradym made their first contribution in https://github.com/loonix/another_xlider/pull/32
+
+**Full Changelog**: https://github.com/loonix/another_xlider/compare/3.0.1...3.0.2
+
 ## 3.0.1 - 29/03/2023
 - fix: selectByTap doesn't work by actual Android devices - thanks to @YasufumiMuranaka
 - kotlin_version is now '1.6.0'
