@@ -4,7 +4,7 @@ import 'package:another_xlider/models/tooltip/tooltip_position_offset.dart';
 import 'package:flutter/material.dart';
 
 class FlutterSliderTooltip {
-  Widget Function(dynamic value)? custom;
+  Widget Function(dynamic value, String? size)? custom;
   String Function(String value)? format;
   TextStyle? textStyle;
   FlutterSliderTooltipBox? boxStyle;
